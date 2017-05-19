@@ -1,5 +1,5 @@
 # fedx4askomics
-AskOmics service to manage federated queries throught [FedX](http://www.fluidops.com/en/company/knowledge/open_source.php) and [Py4j](ttps://www.py4j.org/)
+AskOmics service to manage federated queries throught [FedX](http://www.fluidops.com/en/company/knowledge/open_source.php) and [Py4j](https://www.py4j.org)
 
 ## Docker image
 

@@ -14,8 +14,9 @@ gateway = JavaGateway()                   # connect to the JVM
 fedxService = gateway.entry_point        
 
 fedxService.start()
-fedxService.addEndpoint("http://dbpedia", "http://dbpedia.org/sparql")
-fedxService.addEndpoint("SemanticWeb","http://data.semanticweb.org/sparql")
+AskSupported=False
+fedxService.addEndpoint("http://dbpedia", "http://dbpedia.org/sparql",AskSupported)
+fedxService.addEndpoint("SemanticWeb","http://data.semanticweb.org/sparql",AskSupported)
 
 fedxService.setOutputFormat("JSON")
 

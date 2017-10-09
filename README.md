@@ -42,12 +42,14 @@ export PATH=/opt/java/jdk1.8.0_131/bin/:$PATH
 
 ```
 javac -cp /usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* -d class/ service-java/ServiceFedXGateway.java
+javac -cp /usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* -d class/ service-java/ServiceFedXHttp.java 
 ```
 
 ## Execute service
 
 ```
 java -cp ./class/:/usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* ServiceFedXGateway
+java -cp ./class/:/usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* ServiceFedXHttp
 ```
 
 ## Execute exemple

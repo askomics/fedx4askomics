@@ -49,7 +49,7 @@ javac -cp /usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* -d class/ service-ja
 
 ```
 java -cp ./class/:/usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* ServiceFedXGateway
-java -cp ./class/:/usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* ServiceFedXHttp
+java -cp ./class/:/usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* ServiceFedXHttp -e test -p 4040
 ```
 
 ## Execute exemple
@@ -58,4 +58,7 @@ java -cp ./class/:/usr/local/share/py4j/py4j0.10.4.jar:./fedx/lib/* ServiceFedXH
 python3 client-python/exemple_sparql_request.py
 ```
 
+```
+curl -i --data-urlencode endpoints="http://localhost:8890/sparql" --data-urlencode query="select * where {?a ?b ?c } limit 10" -H "Content-Type: application/sparql-query" -G  http://localhost:4040/test
+```
 

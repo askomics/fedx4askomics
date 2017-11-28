@@ -1,4 +1,4 @@
-import java.lang.System ;
+import java.lang.*;
 import java.util.*;
 import java.io.IOException;
 
@@ -28,7 +28,7 @@ import com.fluidops.fedx.structures.Endpoint;
 import com.fluidops.fedx.structures.SparqlEndpointConfiguration;
 import com.fluidops.fedx.util.EndpointFactory ;
 
-import com.fluidops.fedx.exception.FedXException ;
+import com.fluidops.fedx.exception.* ;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -40,29 +40,33 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.*;
 
-import java.lang.*;
+import java.util.regex.*;
 
 public class ServiceFedXHttp implements HttpHandler {
+
+  private static Logger logger = Logger.getLogger(ServiceFedXHttp.class);
 
   protected enum OutputFormat { STDOUT, JSON, XML; }
   protected OutputFormat outputFormat = OutputFormat.JSON ;
 
-  protected String askomicsEndpoint = "";
-  protected Boolean askomicsEndpointAskSupported = true;
+  protected String defaultEndpoint = "";
 
   protected Map<String, String> endpointsNamed ;
   protected Map<String, String> endpointNat ;
   protected Map<String, Boolean> endpointSupportAsk ;
 
   public ServiceFedXHttp() {
-
-    // Logger
-    Logger l = Logger.getLogger("com.fluidops.fedx");
-    Logger rootLogger = Logger.getRootLogger();
-    rootLogger.setLevel(Level.INFO);
-    l.setLevel(Level.INFO);
-    l.addAppender(new ConsoleAppender(new PatternLayout("%5p [%t] (%F:%L) - %m%n")));
     start();
+  }
+
+  public void configLogger() {
+
+    Logger rootLogger = Logger.getRootLogger();
+    rootLogger.setLevel(Level.WARN);
+
+    Logger l = Logger.getLogger("com.fluidops.fedx");
+    l.setLevel(Level.WARN);
+    l.addAppender(new ConsoleAppender(new PatternLayout("%5p [%t] (%F:%L) - %m%n")));
   }
 
   public void finalize() {
@@ -86,10 +90,13 @@ public class ServiceFedXHttp implements HttpHandler {
   public void handle(HttpExchange t) throws IOException {
 
     System.out.println("Method:"+t.getRequestMethod());
+    String endpoints = "";
     String query = "";
     String results = "json";
     String format = "json";
     String output = "json";
+
+    this.configLogger();
 
     if ( t.getRequestMethod().toUpperCase().equals("GET")) {
       Map<String, String> params = queryToMap(t.getRequestURI().getQuery());
@@ -112,15 +119,40 @@ public class ServiceFedXHttp implements HttpHandler {
       return;
     }
 
-    if ( query == null ) {
+    if ( (query == null) || (query.trim() == "") ) {
       t.sendResponseHeaders(401, 0);
       return;
     }
 
     this.setOutputFormat(format);
 
+    System.out.println("query-->" + query);
+
+    this.removeAllEndpoints();
+
+    try{
+
+      Pattern p = Pattern .compile("#\\s*endpoint\\s*,\\s*(\\w+)\\s*,\\s*(\\S+)\\s*,\\s*(true|false)");
+      Matcher m = p.matcher(query);
+
+      while (m.find()) {
+        System.out.println(" *** Manage Endpoint *** \n"+query.substring(m.start(), m.end()));
+        for(int i=0; i <= m.groupCount(); i++) {
+          // affichage de la sous-chaîne capturée
+          //System.out.println("Groupe " + i + " : " + m.group(i));
+          this.addEndpoint(m.group(1),m.group(2),Boolean.valueOf(m.group(3)));
+        }
+      }
+
+    }catch(PatternSyntaxException pse){
+      System.err.println("PatternSyntaxException ..."+pse.getMessage());
+    }
+
+    if ( this.nbEndpoints() <= 0 ) {
+      this.addEndpoint("default",this.defaultEndpoint,false);
+    }
+
     try {
-      System.out.println("query-->" + query);
 
       String sres = this.runQuery(query);
 
@@ -150,7 +182,6 @@ public class ServiceFedXHttp implements HttpHandler {
       */
       //e.printStackTrace();
       System.out.println(e);
-      System.out.println("SEND^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
       Headers headers = t.getResponseHeaders();
       headers.set("Content-Type", String.format("text/html; charset=%s", StandardCharsets.UTF_8));
       String errormsg = e.getMessage();
@@ -167,21 +198,30 @@ public class ServiceFedXHttp implements HttpHandler {
     endpointNat = new HashMap<String, String>();
   }
 
-  public void addEndpoint(String name, String url) {
+  protected void addEndpoint(String name, String url) {
     endpointsNamed.put(name, url);
     endpointSupportAsk.put(name,true);
   }
 
-  public void addEndpoint(String name, String url, Boolean supportAsk) {
+  protected void addEndpoint(String name, String url, Boolean supportAsk) {
     endpointsNamed.put(name, url);
     endpointSupportAsk.put(name,supportAsk);
   }
 
-  public void removeEndpoint(String name) {
+  protected void removeEndpoint(String name) {
     if (endpointsNamed.containsKey(name)) {
       endpointsNamed.remove(name);
       endpointSupportAsk.remove(name);
     }
+  }
+
+  protected void removeAllEndpoints() {
+    endpointsNamed.clear();
+    endpointSupportAsk.clear();
+  }
+
+  protected int nbEndpoints() {
+    return endpointsNamed.size() ;
   }
 
   public void addNativeEndpoint(String name,String path) {
@@ -207,17 +247,10 @@ public class ServiceFedXHttp implements HttpHandler {
     String sres = "{ \"results\" : { \"bindings\" : [] } } ";
 
     try {
-      // startSession
       Config.initialize();
-      System.out.println("\n***** Endpoints ***** \n");
-      List<Endpoint> endpoints = new ArrayList<Endpoint>();;
 
-      /* Askomis Endpoint */
-      Endpoint epAsko = EndpointFactory.loadSPARQLEndpoint("Askomics User Endpoint", this.askomicsEndpoint) ;
-      endpoints.add(epAsko);
-      SparqlEndpointConfiguration secAsko = new SparqlEndpointConfiguration();
-      secAsko.setSupportsASKQueries(this.askomicsEndpointAskSupported);
-      epAsko.setEndpointConfiguration(secAsko);
+      System.out.println("\n***** Endpoints ***** \n");
+      List<Endpoint> endpoints = new ArrayList<Endpoint>();
 
       for (Map.Entry<String, String> entry : endpointsNamed.entrySet()) {
         System.out.println(entry.getKey()+" : "+ entry.getValue());
@@ -228,7 +261,7 @@ public class ServiceFedXHttp implements HttpHandler {
         System.out.println(entry.getKey()+" : "+ entry.getValue() + "(NATIVE)");
         endpoints.add( EndpointFactory.loadNativeEndpoint(entry.getKey(), entry.getValue()));
       }
-      System.out.println("\n**********\n");
+
       for ( Endpoint ep : endpoints ) {
         if (endpointSupportAsk.containsKey(ep.getName())) {
           System.out.println("Config SupportAsk:"+endpointSupportAsk.get(ep.getName()));
@@ -311,27 +344,37 @@ public class ServiceFedXHttp implements HttpHandler {
     System.out.println("");
     System.out.println(" ------------------------------------------------------------------------------ ");
 
+    int port = 8000 ;
+    String rpath = "";
+
     for (int i=0;i<args.length;i++) {
       System.out.println(args[i]);
-      if (args[i].equals("-d") && (i+1<args.length)) {
-        if (args[i+1].startsWith("-")) throw new IllegalArgumentException("Missing arg following -d");
+		  if (args[i].equals("-d") && (i+1<args.length)) {
+    	    if (args[i+1].startsWith("-")) throw new IllegalArgumentException("Missing arg following -d");
+          app.defaultEndpoint = args[i+1] ;
+		   }
+      if (args[i].equals("-p") && (i+1<args.length)) {
+        if (args[i+1].startsWith("-")) throw new IllegalArgumentException("Missing arg following -p");
 
-        app.askomicsEndpoint = args[i+1] ;
+        port = Integer.parseInt(args[i+1]) ;
+      }
+      if (args[i].equals("-e") && (i+1<args.length)) {
+        if (args[i+1].startsWith("-")) throw new IllegalArgumentException("Missing arg following -p");
+
+        rpath = args[i+1] ;
       }
     }
 
-    /* Simple test to have a minimu config */
-    if (app.askomicsEndpoint.length() == 0) throw new IllegalArgumentException("Please define an askomics endpoint url !");
-
-    Boolean AskSupported = false ;
+    //Boolean AskSupported = false ;
 
     //app.addEndpoint("AskOmics","http://localhost:8890/sparql",true);
     //app.addEndpoint("http://dbpedia", "http://dbpedia.org/sparql",AskSupported);
-    app.addEndpoint("SemanticWeb","http://data.semanticweb.org/sparql",AskSupported);
+    //app.addEndpoint("SemanticWeb","http://data.semanticweb.org/sparql",AskSupported);
 
+    //app.addEndpoint("Regine","http://openstack-192-168-100-46.genouest.org/virtuoso/sparql",AskSupported);
     try {
-      HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
-      server.createContext("/test", app);
+      HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+      server.createContext("/"+rpath, app);
       server.start();
     } catch (IOException e) {
             // no postData - just reset inputstream

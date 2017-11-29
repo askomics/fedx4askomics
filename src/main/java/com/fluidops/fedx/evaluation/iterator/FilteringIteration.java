@@ -56,5 +56,12 @@ public class FilteringIteration extends FilterIteration<BindingSet, QueryEvaluat
 			// failed to evaluate condition
 			return false;
 		}
+		 catch (Exception e) {
+			log.info(e.getMessage());
+			log.info("filterExpr===>"+filterExpr.toString());
+			log.info("bindings===>"+bindings.toString());
+			// failed to evaluate condition
+			return false;
+		}
 	}
 }

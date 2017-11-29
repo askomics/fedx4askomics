@@ -292,6 +292,7 @@ public class ServiceFedXHttp implements HttpHandler {
     	config.set("debugQueryPlan", "false");
     	config.set("monitoring.logQueries", "false");
     	config.set("monitoring.logQueryPlan", "false");
+    	config.set("workerThreads", "1"); //debug....
     	
 		repo = FedXFactory.initializeFederation(config, new CLIEndpointListProvider());
   	} catch (FedXException e) {
@@ -320,8 +321,8 @@ public class ServiceFedXHttp implements HttpHandler {
 		
 		System.out.println("evaluate");
 		TupleQueryResult res = query.evaluate();
+		System.out.println("evaluate ok");
 		
-		System.out.println("ok");
 		if ( outputFormat == OutputFormat.JSON || outputFormat == OutputFormat.XML ) {
         TupleQueryResultWriter w ;
 
@@ -347,7 +348,7 @@ public class ServiceFedXHttp implements HttpHandler {
         sres = new String( bao.toByteArray(), java.nio.charset.StandardCharsets.UTF_8 );
 
       } else if ( outputFormat == OutputFormat.STDOUT ) {
-          while (res.hasNext()) {
+    	  while (res.hasNext()) {
               sres += res.next()+"\n";
           }
       }

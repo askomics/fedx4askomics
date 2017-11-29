@@ -80,7 +80,6 @@ public class OptimizerUtil
 			return freeVars;
 		}
 
-
 		if (tupleExpr instanceof FedXService) {
 			return ((FedXService)tupleExpr).getFreeVars();
 		}
@@ -100,7 +99,15 @@ public class OptimizerUtil
 			if (st.getObjectVar().getValue()==null)
 				freeVars.add(st.getObjectVar().getName());
 		}
-		
+		/*
+		if (tupleExpr instanceof ArbitraryLengthPath) {
+			List<String> freeVars = new ArrayList<String>();
+			ArbitraryLengthPath alp = (ArbitraryLengthPath)tupleExpr;
+			tupleExpr = alp.getPathExpression();
+			System.out.println(tupleExpr);
+			return freeVars;
+		}
+		*/
 		
 		throw new FedXRuntimeException("Type " + tupleExpr.getClass().getSimpleName() + " not supported for cost estimation. If you run into this, please report a bug.");
 		

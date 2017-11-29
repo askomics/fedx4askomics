@@ -281,7 +281,7 @@ public class ServiceFedXHttp implements HttpHandler {
 
   public String runQuery(String sparqlRequest) throws Exception {
     System.out.println("====================================== REQUEST ===============================================");
-    //System.out.println(sparqlRequest);
+    System.out.println(sparqlRequest);
     ByteArrayOutputStream bao = new ByteArrayOutputStream();
 
     String sres = "{ \"results\" : { \"bindings\" : [] } } ";

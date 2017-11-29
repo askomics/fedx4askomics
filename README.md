@@ -1,14 +1,21 @@
 # BUILD
+
+```
 mvn clean dependency:copy-dependencies package
+```
 
 # HTTP Server
-java -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.fluidops.fedx.ServiceFedXHttp -e test -p 4040
+
+```
+java -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.ServiceFedXHttp -e test -p 4040
+```
 
 # Send HTTP sparqlrequest
 
 ## Post Vars
 
 ### query
+
 ```
 #endpoint,<name>,<url>,<supportAsk>
 ..

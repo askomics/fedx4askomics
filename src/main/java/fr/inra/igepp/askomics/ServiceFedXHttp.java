@@ -1,4 +1,4 @@
-package com.fluidops.fedx;
+package fr.inra.igepp.askomics;
 
 import java.util.*;
 import java.io.IOException;
@@ -19,6 +19,12 @@ import org.eclipse.rdf4j.query.resultio.sparqljson.SPARQLResultsJSONWriter;
 import org.eclipse.rdf4j.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 
+import com.fluidops.fedx.Config;
+import com.fluidops.fedx.EndpointListProvider;
+import com.fluidops.fedx.FedX;
+import com.fluidops.fedx.FedXConnection;
+import com.fluidops.fedx.FedXFactory;
+import com.fluidops.fedx.QueryManager;
 import com.fluidops.fedx.sail.FedXSailRepository;
 import com.fluidops.fedx.structures.Endpoint;
 import com.fluidops.fedx.util.EndpointFactory ;
@@ -53,17 +59,6 @@ public class ServiceFedXHttp implements HttpHandler {
     start();
   }
 
-  public void configLogger() {
-/*
-    Logger rootLogger = Logger.getRootLogger();
-    rootLogger.setLevel(Level.WARN);
-
-    Logger l = Logger.getLogger("com.fluidops.fedx");
-    l.setLevel(Level.WARN);
-    l.addAppender(new ConsoleAppender(new PatternLayout("%5p [%t] (%F:%L) - %m%n")));
-  	*/
-  }
-  
   class CLIEndpointListProvider implements EndpointListProvider
 	{
 	    protected List<Endpoint> endpoints = new ArrayList<Endpoint>();
@@ -106,6 +101,11 @@ public class ServiceFedXHttp implements HttpHandler {
       public void close() {
           
       }
+
+      public List<Endpoint> getEndpoints1(FedX federation) {
+		// TODO Auto-generated method stub
+		return null;
+      }
 	}
 
   public void finalize() {
@@ -135,7 +135,6 @@ public class ServiceFedXHttp implements HttpHandler {
     String format = "json";
     String output = "json";
 
-    this.configLogger();
 
     if ( t.getRequestMethod().toUpperCase().equals("GET")) {
       Map<String, String> params = queryToMap(t.getRequestURI().getQuery());

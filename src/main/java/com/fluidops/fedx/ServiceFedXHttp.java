@@ -38,7 +38,7 @@ public class ServiceFedXHttp implements HttpHandler {
   //private static Logger logger = Logger.getLogger(ServiceFedXHttp.class);
 
   protected enum OutputFormat { STDOUT, JSON, XML; }
-  protected OutputFormat outputFormat = OutputFormat.STDOUT ;
+  protected OutputFormat outputFormat = OutputFormat.JSON ;
 
   protected String defaultEndpoint = "";
 
@@ -68,8 +68,8 @@ public class ServiceFedXHttp implements HttpHandler {
 	{
 	    protected List<Endpoint> endpoints = new ArrayList<Endpoint>();
 	    
-      //@Override
-      public List<Endpoint> getEndpoints(FedX federation) {
+	    //@Override
+	    public List<Endpoint> getEndpoints(FedX federation) {
       	System.out.println(" ================================> getEndpoints <===========================================");
       	for (Map.Entry<String, String> entry : endpointsNamed.entrySet()) {
             System.out.println(entry.getKey()+" : "+ entry.getValue());
@@ -203,6 +203,7 @@ public class ServiceFedXHttp implements HttpHandler {
       t.getResponseBody().close();
     }
     catch (Exception e) {
+    	System.err.println(" ** Manage exception **");
       /*
       Errors with HTTP Status Code 400 (Bad Request)
 
@@ -224,7 +225,7 @@ public class ServiceFedXHttp implements HttpHandler {
       Headers headers = t.getResponseHeaders();
       headers.set("Content-Type", String.format("text/html; charset=%s", StandardCharsets.UTF_8));
       String errormsg = e.getMessage();
-      t.sendResponseHeaders(403,errormsg.length());
+      t.sendResponseHeaders(400,errormsg.length());
       t.getResponseBody().write(errormsg.getBytes());
       t.getResponseBody().flush();
       t.getResponseBody().close();
@@ -280,14 +281,24 @@ public class ServiceFedXHttp implements HttpHandler {
 
   public String runQuery(String sparqlRequest) throws Exception {
     System.out.println("====================================== REQUEST ===============================================");
-    System.out.println(sparqlRequest);
+    //System.out.println(sparqlRequest);
     ByteArrayOutputStream bao = new ByteArrayOutputStream();
 
     String sres = "{ \"results\" : { \"bindings\" : [] } } ";
     try {
+    	String fedxConfig=null;
+    	config = new Config(fedxConfig);
+    	config.set("enableMonitoring","false");
+    	config.set("debugWorkerScheduler", "false");
+    	config.set("debugQueryPlan", "false");
+    	config.set("monitoring.logQueries", "false");
+    	config.set("monitoring.logQueryPlan", "false");
+    	
 		repo = FedXFactory.initializeFederation(config, new CLIEndpointListProvider());
   	} catch (FedXException e) {
   		error("Problem occured while setting up the federation: " + e.getMessage(), false);
+  	} catch (Exception e) {
+  		error("Unkown error occured while setting up the federation: " + e.getMessage(), false);
   	}
     
     SailRepositoryConnection conn = repo.getConnection();
@@ -295,6 +306,8 @@ public class ServiceFedXHttp implements HttpHandler {
 	QueryManager qm = fconn.getQueryManager();
 
     try {
+    	
+    	//System.out.println(qm.getQueryPlan(sparqlRequest, fconn.getSummary()));
     	// setup the federation
    	 			
       //FedXFactory.initializeFederation(endpoints);
@@ -345,7 +358,7 @@ public class ServiceFedXHttp implements HttpHandler {
       }
       */
     } catch (Exception e) {
-      //e.printStackTrace();
+      e.printStackTrace();
       try {
     	  /*
           if (FederationManager.isInitialized()) {
@@ -412,7 +425,9 @@ public class ServiceFedXHttp implements HttpHandler {
       HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
       server.createContext("/"+rpath, app);
       server.start();
+      System.out.println(" =====  start  ===== http://localhost:" + port + "/"+rpath );
     } catch (IOException e) {
+    	System.err.println(e.getMessage());
             // no postData - just reset inputstream
     }
   }

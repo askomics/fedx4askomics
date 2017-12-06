@@ -24,10 +24,13 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fluidops.fedx.algebra.StatementSource;
 import com.fluidops.fedx.algebra.StatementSource.StatementSourceType;
 import com.fluidops.fedx.cache.Cache.StatementSourceAssurance;
+import com.fluidops.fedx.evaluation.SAILFederatedService;
 import com.fluidops.fedx.evaluation.TripleSource;
 import com.fluidops.fedx.exception.OptimizationException;
 import com.fluidops.fedx.structures.Endpoint;
@@ -35,6 +38,7 @@ import com.fluidops.fedx.structures.SubQuery;
 
 public class CacheUtils {
 
+	public static Logger log = LoggerFactory.getLogger(CacheUtils.class);
 	
 	/**
 	 * Perform a "ASK" query for the provided statement to check if the endpoint can provide results.
@@ -51,7 +55,7 @@ public class CacheUtils {
 			TripleSource t = endpoint.getTripleSource();
 			RepositoryConnection conn = endpoint.getConn(); 
 
-			boolean hasResults = t.hasStatements(conn, subj, pred, obj);
+			boolean hasResults = t.hasStatements(conn, endpoint.getGraph(), endpoint.getNamedGraph(), subj, pred, obj);
 			
 			CacheEntry entry = createCacheEntry(endpoint, hasResults);
 			cache.updateEntry( new SubQuery(subj, pred, obj), entry);
@@ -105,7 +109,7 @@ public class CacheUtils {
 	 * @return
 	 */
 	public static List<StatementSource> checkCacheForStatementSourcesUpdateCache(Cache cache, List<Endpoint> endpoints, Resource subj, IRI pred, Value obj) {
-		
+		log.info("checkCacheForStatementSourcesUpdateCache");
 		SubQuery q = new SubQuery(subj, pred, obj);
 		List<StatementSource> sources = new ArrayList<StatementSource>(endpoints.size());
 		
@@ -113,14 +117,15 @@ public class CacheUtils {
 			StatementSourceAssurance a = cache.canProvideStatements(q, e);
 
 			if (a==StatementSourceAssurance.HAS_LOCAL_STATEMENTS) {
-				sources.add( new StatementSource(e.getId(), StatementSourceType.LOCAL));			
+				sources.add( new StatementSource(e.getId(), StatementSourceType.LOCAL, e.getGraph(), e.getNamedGraph()));			
 			} else if (a==StatementSourceAssurance.HAS_REMOTE_STATEMENTS) {
-				sources.add( new StatementSource(e.getId(), StatementSourceType.REMOTE));			
+				sources.add( new StatementSource(e.getId(), StatementSourceType.REMOTE, e.getGraph(), e.getNamedGraph()));			
 			} else if (a==StatementSourceAssurance.POSSIBLY_HAS_STATEMENTS) {
-				
+				log.info("checkCacheForStatementSourcesUpdateCache");
+				log.info("graph="+e.getGraph());
 				// check if the endpoint has results (statistics + ask request)				
 				if (CacheUtils.checkEndpointForResults(cache, e, subj, pred, obj))
-					sources.add( new StatementSource(e.getId(), StatementSourceType.REMOTE));
+					sources.add( new StatementSource(e.getId(), StatementSourceType.REMOTE, e.getGraph(), e.getNamedGraph()));
 			} 
 		}
 		return sources;

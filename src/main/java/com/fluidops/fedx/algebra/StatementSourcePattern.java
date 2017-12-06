@@ -27,6 +27,8 @@ import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.algebra.StatementPattern;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fluidops.fedx.evaluation.TripleSource;
 import com.fluidops.fedx.evaluation.iterator.SingleBindingSetIteration;
@@ -48,6 +50,8 @@ import com.fluidops.fedx.util.QueryStringUtil;
  * @see StatementSource
  */
 public class StatementSourcePattern extends FedXStatementPattern {
+	//private static final Logger log = LoggerFactory.getLogger(StatementSourcePattern.class);
+	
 	private static final long serialVersionUID = -4464585352261363386L;
 	protected boolean usePreparedQuery = false;
 	
@@ -85,7 +89,7 @@ public class StatementSourcePattern extends FedXStatementPattern {
 					// queryString needs to be constructed only once for a given bindingset
 					if (preparedQuery==null) {
 						try {
-							preparedQuery = QueryStringUtil.selectQueryString(this, bindings, filterExpr, isEvaluated);
+							preparedQuery = QueryStringUtil.selectQueryString(source.getGraph(), source.getNamedGraph(), this, bindings, filterExpr, isEvaluated);
 						} catch (IllegalQueryException e1) {
 							/* all vars are bound, this must be handled as a check query, can occur in joins */
 							return handleStatementSourcePatternCheck(bindings, sources);
@@ -119,7 +123,9 @@ public class StatementSourcePattern extends FedXStatementPattern {
 			Endpoint ownedEndpoint = queryInfo.getFedXConnection().getEndpointManager().getEndpoint(source.getEndpointID());
 			RepositoryConnection ownedConnection = ownedEndpoint.getConn();
 			TripleSource t = ownedEndpoint.getTripleSource();
-			if (t.hasStatements(this, ownedConnection, bindings))
+			//log.info("evaluate");
+			//log.info("graph="+source.getGraph());
+			if (t.hasStatements(this, ownedConnection, source.getGraph(),source.getNamedGraph(), bindings))
 				return new SingleBindingSetIteration(bindings);
 		}
 		

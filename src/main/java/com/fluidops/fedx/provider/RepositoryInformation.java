@@ -17,6 +17,9 @@
 
 package com.fluidops.fedx.provider;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import com.fluidops.fedx.structures.Endpoint.EndpointType;
@@ -28,10 +31,12 @@ public class RepositoryInformation {
 	private EndpointType type = EndpointType.Other;	// the endpoint type, default Other
 	private EndpointConfiguration endpointConfiguration;	// optional configuration settings for the endpoint
 	
-	public RepositoryInformation(String id, String name, String location, EndpointType type) {
+	public RepositoryInformation(String id, String name, String graph, String namedGraph, String location, EndpointType type) {
 		props.setProperty("id", id);
 		props.setProperty("name", name);
 		props.setProperty("location", location);
+		props.setProperty("graph", graph);
+		props.setProperty("namedGraph", namedGraph);
 		this.type = type;
 	}
 	
@@ -49,6 +54,20 @@ public class RepositoryInformation {
 	
 	public String getLocation() {
 		return props.getProperty("location");
+	}
+	
+	public List<String> getGraph() {
+		if ( props.getProperty("graph").trim() != "") { 
+			return Arrays.asList(props.getProperty("graph").split(","));
+		}
+		return new ArrayList<String>();
+	}
+	
+	public List<String> getNamedGraph() {
+		if ( props.getProperty("namedGraph").trim() != "") { 
+			return Arrays.asList(props.getProperty("namedGraph").split(","));
+		}
+		return new ArrayList<String>();
 	}
 	
 	public EndpointType getType() {

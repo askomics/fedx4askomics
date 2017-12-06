@@ -46,12 +46,12 @@ public class SPARQLHttpRepoProvider implements EndpointProvider {
 			HTTPRepository repo = new HTTPRepository(repoInfo.getLocation());
 			repo.initialize();
 			
-			ProviderUtil.checkConnectionIfConfigured(config, repo);
+			ProviderUtil.checkConnectionIfConfigured(config, repo, repoInfo.getGraph(),repoInfo.getNamedGraph());
 			
 			String location = repoInfo.getLocation();
 			EndpointClassification epc = EndpointClassification.Remote;
 					
-			Endpoint res = new Endpoint(repoInfo.getId(), repoInfo.getName(), location, repoInfo.getType(), epc);
+			Endpoint res = new Endpoint(repoInfo.getId(), repoInfo.getName(), location, repoInfo.getType(), epc,repoInfo.getGraph(), repoInfo.getNamedGraph());
 			res.setEndpointConfiguration(repoInfo.getEndpointConfiguration());
 			res.setRepo(repo);
 			

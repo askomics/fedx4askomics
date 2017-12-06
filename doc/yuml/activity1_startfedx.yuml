@@ -1,0 +1,2 @@
+(start)->(FedXFactory::initializeFederation)->(FedXSailRepository::getConnection)->|a|,|a|->(FedXConnection::getSailConnection)->(FedXConnection::getQueryManager)->(QueryManager::getQueryPlan)->(end),
+|a|->(FedXConnection::prepareTupleQuery - sparqlquerystring)->(TupleQuery::evaluate)->(end)

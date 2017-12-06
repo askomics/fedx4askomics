@@ -143,7 +143,7 @@ public class CLI {
                 readArg(args);      // remove -s
                 String url = readArg(args,"urlToSparqlEndpoint");
                 try {
-                    Endpoint endpoint = EndpointFactory.loadSPARQLEndpoint(config, federation.getHttpClient(), url);
+                    Endpoint endpoint = EndpointFactory.loadSPARQLEndpoint(config, federation.getHttpClient(), url, "", "");
                     endpoints.add(endpoint);
                 } catch (FedXException e) {
                     error("SPARQL endpoint " + url + " could not be loaded: " + e.getMessage(), false);
@@ -154,7 +154,7 @@ public class CLI {
                 readArg(args);      // remove -l
                 String path = readArg(args,"path/to/NativeStore");
                 try {
-                    Endpoint endpoint = EndpointFactory.loadNativeEndpoint(config, path);
+                    Endpoint endpoint = EndpointFactory.loadNativeEndpoint(config, path, "" ,"");
                     endpoints.add(endpoint);
                 } catch (FedXException e) {
                     error("NativeStore " + path + " could not be loaded: " + e.getMessage(), false);

@@ -17,6 +17,7 @@
 
 package com.fluidops.fedx.evaluation.union;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.eclipse.rdf4j.model.IRI;
@@ -45,9 +46,11 @@ public class ParallelGetStatementsTask implements Callable<CloseableIteration<St
 	protected Resource[] contexts;
 	protected final TripleSource tripleSource;
 	protected final RepositoryConnection conn;
+	protected final List<String> graph;
+	protected final List<String> namedGraph;
 		
 	public ParallelGetStatementsTask(
-			TripleSource tripleSource, RepositoryConnection conn,
+			TripleSource tripleSource, RepositoryConnection conn, List<String> graph, List<String> namedGraph,
 			Resource subj, IRI pred, Value obj, Resource... contexts)
 	{	
 		this.tripleSource = tripleSource;
@@ -55,11 +58,13 @@ public class ParallelGetStatementsTask implements Callable<CloseableIteration<St
 		this.subj = subj;
 		this.pred = pred;
 		this.obj = obj;
-		this.contexts = contexts;		
+		this.contexts = contexts;
+		this.graph = graph;
+		this.namedGraph = namedGraph;	
 	}
 
 	//@Override
 	public CloseableIteration<Statement, QueryEvaluationException> call() {
-		return tripleSource.getStatements(conn, subj, pred, obj, contexts);
+		return tripleSource.getStatements(conn, graph, namedGraph, subj, pred, obj, contexts);
 	}
 }

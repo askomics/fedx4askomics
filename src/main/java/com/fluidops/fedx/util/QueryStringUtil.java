@@ -46,6 +46,7 @@ import com.fluidops.fedx.algebra.ExclusiveStatement;
 import com.fluidops.fedx.algebra.FedXStatementPattern;
 import com.fluidops.fedx.algebra.FilterValueExpr;
 import com.fluidops.fedx.algebra.IndependentJoinGroup;
+import com.fluidops.fedx.algebra.StatementSource;
 import com.fluidops.fedx.algebra.StatementTupleExpr;
 import com.fluidops.fedx.evaluation.SparqlFederationEvalStrategyWithValues;
 import com.fluidops.fedx.evaluation.iterator.BoundJoinVALUESConversionIteration;
@@ -141,8 +142,8 @@ public class QueryStringUtil {
 	 * @throws IllegalQueryException
 	 * 				if the query does not have any free variables
 	 */
-	public static String selectQueryString( FedXStatementPattern stmt, BindingSet bindings, FilterValueExpr filterExpr, Boolean evaluated) throws IllegalQueryException {
-		
+	public static String selectQueryString( List<String> graph, List<String> namedGraph, FedXStatementPattern stmt, BindingSet bindings, FilterValueExpr filterExpr, Boolean evaluated) throws IllegalQueryException {
+		//log.info("================================== QueryStringUtil::selectQueryString ====================================");
 		Set<String> varNames = new HashSet<String>();
 		String s = constructStatement(stmt, varNames, bindings);
 		
@@ -158,6 +159,18 @@ public class QueryStringUtil {
 		
 		for (String var : varNames)
 			res.append(" ?").append(var);
+		
+       /* OFI */
+		
+		for ( String g : graph ) {
+			res.append("FROM <"+g+"> ");
+		}
+
+		for ( String g : namedGraph ) {
+			res.append("FROM NAMED <"+g+"> ");
+		}
+		
+		/* FIN OFI */
 		
 		res.append(" WHERE { ").append(s);
 		
@@ -194,7 +207,7 @@ public class QueryStringUtil {
 	 * 
 	 */
 	public static String selectQueryString( ExclusiveGroup group, BindingSet bindings, FilterValueExpr filterExpr, Boolean evaluated) throws IllegalQueryException  {
-		
+		//log.info("================================== QueryStringUtil::selectQueryString ====================================");
 		StringBuilder sb = new StringBuilder();
 		Set<String> varNames = new HashSet<String>();
 		
@@ -212,7 +225,18 @@ public class QueryStringUtil {
 			
 		for (String var : varNames)
 			res.append(" ?").append(var);
-			
+		
+		/* OFI */
+		
+		for ( String g : group.getOwner().getGraph()) {
+			res.append("FROM <"+g+"> ");
+		}
+
+		for ( String g : group.getOwner().getNamedGraph() ) {
+			res.append("FROM NAMED <"+g+"> ");
+		}
+		
+		/* FIN OFI */
 		
 		res.append(" WHERE { ").append(sb);
 		
@@ -240,7 +264,7 @@ public class QueryStringUtil {
 	 * @throws IllegalQueryException
 	 */
 	public static String askQueryString( ExclusiveGroup group, BindingSet bindings) {
-		
+		//log.info("================================== QueryStringUtil::askQueryString 1 ====================================");
 		StringBuilder sb = new StringBuilder();
 		Set<String> varNames = new HashSet<String>();
 		
@@ -248,7 +272,23 @@ public class QueryStringUtil {
 			sb.append( constructStatement(s, varNames, bindings) );
 		
 		StringBuilder res = new StringBuilder();	
-		res.append("ASK { ").append(sb.toString()).append(" }");
+	
+		res.append("ASK ");
+		
+		/* OFI */
+
+		for ( String g : group.getOwner().getGraph()) {
+			res.append("FROM <"+g+"> ");
+		}
+
+		for ( String g : group.getOwner().getNamedGraph() ) {
+			res.append("FROM NAMED <"+g+"> ");
+		}
+		
+		/* FIN OFI */
+		
+		res.append("{").append(sb.toString()).append(" }");
+		//log.info(res.toString());
 		return res.toString();
 	}
 
@@ -269,8 +309,9 @@ public class QueryStringUtil {
 	 * 
 	 * @return
 	 */
-	public static String selectQueryStringBoundUnion( StatementPattern stmt, List<BindingSet> unionBindings, FilterValueExpr filterExpr, Boolean evaluated) {
-					
+	public static String selectQueryStringBoundUnion(StatementPattern stmt, List<BindingSet> unionBindings, FilterValueExpr filterExpr, Boolean evaluated) {
+		//log.info("================================== QueryStringUtil::selectQueryStringBoundUnion ====================================");
+		//log.debug(stmt.toString());
 		Set<String> varNames = new HashSet<String>();
 		
 		StringBuilder unions = new StringBuilder();
@@ -287,7 +328,11 @@ public class QueryStringUtil {
 		
 		for (String var : varNames)
 			res.append(" ?").append(var);
-				
+		
+        /* OFI */
+		res.append(" FROM <> ");
+		/* FIN OFI */
+		
 		res.append(" WHERE {");
 		
 		res.append( unions );
@@ -325,7 +370,7 @@ public class QueryStringUtil {
 	 * @since 3.0
 	 */
 	public static String selectQueryStringBoundJoinVALUES(StatementPattern stmt, List<BindingSet> unionBindings, FilterValueExpr filterExpr, Boolean evaluated) {
-		
+		//log.info("================================== QueryStringUtil::selectQueryStringBoundJoinVALUES ====================================");
 		Set<String> varNames = new LinkedHashSet<String>();	
 		StringBuilder res = new StringBuilder();
 		
@@ -334,8 +379,14 @@ public class QueryStringUtil {
 		
 		for (String var : varNames)
 			res.append(" ?").append(var);
-				
-		res.append(" ?").append(BoundJoinVALUESConversionIteration.INDEX_BINDING_NAME).append(" WHERE {");
+		
+		res.append(" ?").append(BoundJoinVALUESConversionIteration.INDEX_BINDING_NAME);
+		
+        /* OFI */
+		res.append(" FROM <> ");
+		/* FIN OFI */
+		
+		res.append(" WHERE {");
 		
 		res.append( stmtPattern );
 		
@@ -396,7 +447,7 @@ public class QueryStringUtil {
 	 * @return
 	 */
 	public static String selectQueryStringBoundCheck(StatementPattern stmt, List<BindingSet> unionBindings) {
-		
+		//log.info("================================== QueryStringUtil::selectQueryStringBoundCheck ====================================");			
 		Set<String> varNames = new HashSet<String>();
 		
 		StringBuilder unions = new StringBuilder();
@@ -413,7 +464,11 @@ public class QueryStringUtil {
 		
 		for (String var : varNames)
 			res.append(" ?").append(var);
-				
+		
+        /* OFI */
+		res.append(" FROM <> ");
+		/* FIN OFI */
+		
 		res.append(" WHERE {").append( unions ).append(" }");
 		
 		return res.toString();
@@ -432,7 +487,7 @@ public class QueryStringUtil {
 	 * @return
 	 */
 	public static String selectQueryStringIndependentJoinGroup(IndependentJoinGroup joinGroup, BindingSet bindings) {
-		
+		//log.info("================================== QueryStringUtil::selectQueryStringIndependentJoinGroup ====================================");
 		Set<String> varNames = new HashSet<String>();
 		
 		StringBuilder unions = new StringBuilder();
@@ -443,21 +498,26 @@ public class QueryStringUtil {
 				unions.append(" UNION");
 			unions.append(" { ").append(s).append(" }");
 		}
-		
+
 		StringBuilder res = new StringBuilder();
-		
+
 		res.append("SELECT ");
-		
+
 		for (String var : varNames)
 			res.append(" ?").append(var);
-				
+
+		/* OFI */
+		res.append(" FROM <> ");
+		/* FIN OFI */
+
 		res.append(" WHERE {");
-		
+
 		res.append( unions );
-				
+
 		res.append(" }");
-		
+
 		return res.toString();
+
 	}
 	
 	/**
@@ -478,7 +538,7 @@ public class QueryStringUtil {
 	 * @return
 	 */
 	public static String selectQueryStringIndependentJoinGroup(IndependentJoinGroup joinGroup, List<BindingSet> bindings) {
-		
+		//log.info("================================== QueryStringUtil::selectQueryStringIndependentJoinGroup ====================================");
 		Set<String> varNames = new HashSet<String>();
 		
 		StringBuilder outerUnion = new StringBuilder();
@@ -488,21 +548,27 @@ public class QueryStringUtil {
 				outerUnion.append(" UNION");
 			outerUnion.append(" { ").append(innerUnion).append("}");
 		}
-		
-		
+
 		StringBuilder res = new StringBuilder();
-		
+
 		res.append("SELECT ");
-		
+
 		for (String var : varNames)
 			res.append(" ?").append(var);
-				
+		
+		/* OFI */
+		res.append(" FROM <>");
+		/* FIN OFI */
+
+
 		res.append(" WHERE {");
-		
+
 		res.append( outerUnion );
-				
+
 		res.append(" }");
-		
+
+
+
 		return res.toString();
 	}
 	
@@ -528,16 +594,30 @@ public class QueryStringUtil {
 	 * @param bindings
 	 * @return
 	 */
-	public static String askQueryString( StatementPattern stmt, BindingSet bindings ) {
+	public static String askQueryString( StatementPattern stmt, List<String> graph, List<String> namedGraph, BindingSet bindings ) {
+		//log.info("================================== QueryStringUtil::askQueryString 2 ====================================");
+		//log.debug(stmt.toString());
 		
 		Set<String> varNames = new HashSet<String>();
 		String s = constructStatement(stmt, varNames, bindings);
 		
 		StringBuilder res = new StringBuilder();
 		
-		res.append("ASK {");
-		res.append(s).append(" }");
+		res.append("ASK ");
 		
+		/* OFI */
+		for ( String g : graph ) {
+			res.append("FROM <"+g+"> ");
+		}
+
+		for ( String g : namedGraph ) {
+			res.append("FROM NAMED <"+g+"> ");
+		}
+		
+		/* FIN OFI */
+		
+		res.append("{").append(s).append(" }");
+		//log.debug(res.toString());
 		return res.toString();		
 	}
 	
@@ -549,14 +629,26 @@ public class QueryStringUtil {
 	 * @param bindings
 	 * @return
 	 */
-	public static String selectQueryStringLimit1( StatementPattern stmt, BindingSet bindings ) {
-		
+	public static String selectQueryStringLimit1( StatementPattern stmt, List<String> graph, List<String> namedGraph, BindingSet bindings ) {
+		//log.info("================================== QueryStringUtil::selectQueryStringLimit1 ====================================");
 		Set<String> varNames = new HashSet<String>();
 		String s = constructStatement(stmt, varNames, bindings);
 		
 		StringBuilder res = new StringBuilder();
 		
-		res.append("SELECT * WHERE {");
+		res.append("SELECT * ");
+		
+		/* OFI */
+		for ( String g : graph ) {
+			res.append("FROM <"+g+"> ");
+		}
+
+		for ( String g : namedGraph ) {
+			res.append("FROM NAMED <"+g+"> ");
+		}
+		/* FIN OFI */
+		
+		res.append(" WHERE {");
 		res.append(s).append(" } LIMIT 1");
 		
 		return res.toString();		
@@ -571,12 +663,26 @@ public class QueryStringUtil {
 	 * @return
 	 */
 	public static String selectQueryStringLimit1( ExclusiveGroup group, BindingSet bindings ) {
-		
+		//log.info("================================== QueryStringUtil::selectQueryStringLimit1 ====================================");
 		Set<String> varNames = new HashSet<String>();		
 		StringBuilder res = new StringBuilder();
 		
-		res.append("SELECT * WHERE { ");
+		res.append("SELECT * ");
+		
+		/* OFI */
+		
+		for ( String g : group.getOwner().getGraph()) {
+			res.append("FROM <"+g+"> ");
+		}
 
+		for ( String g : group.getOwner().getNamedGraph() ) {
+			res.append("FROM NAMED <"+g+"> ");
+		}
+		
+		/* FIN OFI */
+		
+		res.append(" WHERE { ");
+		
 		for (ExclusiveStatement s : group.getStatements())
 			res.append( constructStatement(s, varNames, bindings) );
 		
@@ -777,7 +883,7 @@ public class QueryStringUtil {
 	 * @return
 	 */
 	protected static StringBuilder appendBNode(StringBuilder sb, BNode bNode) {
-		log.debug("Cannot express BNodes in SPARQl: Bnode " + bNode.toString() + " is replaced with " + BNODE_URI.stringValue());
+		//log.debug("Cannot express BNodes in SPARQl: Bnode " + bNode.toString() + " is replaced with " + BNODE_URI.stringValue());
 		// TODO think how this can be done in queries, for now we just append a
 		// dummy URI which does not produce any results
 		return appendURI(sb, BNODE_URI);

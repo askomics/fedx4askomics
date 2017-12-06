@@ -52,7 +52,7 @@ public class ParallelUnionTask implements Callable<CloseableIteration<BindingSet
 
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> call() {
-		return tripleSource.getStatements(stmt, ep.getConn(), bindings, filterExpr);
+		return tripleSource.getStatements(stmt, ep.getConn(), ep.getGraph(), ep.getNamedGraph(), bindings, filterExpr);
 	}
 	
 	public String toString() {

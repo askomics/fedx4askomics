@@ -17,6 +17,8 @@
 
 package com.fluidops.fedx.evaluation;
 
+import java.util.List;
+
 import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 
 import org.eclipse.rdf4j.model.Resource;
@@ -69,7 +71,7 @@ public interface TripleSource {
 	 * @throws MalformedQueryException
 	 * @throws QueryEvaluationException
 	 */
-	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(TupleExpr preparedQuery, RepositoryConnection conn, final BindingSet bindings, FilterValueExpr filterExpr) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
+	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(TupleExpr preparedQuery, RepositoryConnection conn, List<String> graph,List<String> namedGraph, final BindingSet bindings, FilterValueExpr filterExpr) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
 
 	
 	/**
@@ -91,7 +93,7 @@ public interface TripleSource {
 	 * @throws MalformedQueryException
 	 * @throws QueryEvaluationException
 	 */
-	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(String preparedQuery, RepositoryConnection conn, final BindingSet bindings, FilterValueExpr filterExpr) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
+	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(String preparedQuery, RepositoryConnection conn, List<String> graph,List<String> namedGraph, final BindingSet bindings, FilterValueExpr filterExpr) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
 
 	/**
 	 * Evaluate a given SPARQL query of the provided query type at the given source.
@@ -104,7 +106,7 @@ public interface TripleSource {
 	 * @throws MalformedQueryException
 	 * @throws QueryEvaluationException
 	 */
-	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(String preparedQuery, RepositoryConnection conn, QueryType queryType) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
+	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(String preparedQuery, RepositoryConnection conn, List<String> graph,List<String> namedGraph, QueryType queryType) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
 	
 	/**
 	 * Evaluate the query expression on the provided endpoint.
@@ -125,7 +127,7 @@ public interface TripleSource {
 	 * @throws MalformedQueryException
 	 * @throws QueryEvaluationException
 	 */
-	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(StatementPattern stmt, RepositoryConnection conn, final BindingSet bindings, FilterValueExpr filterExpr) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
+	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(StatementPattern stmt, RepositoryConnection conn, List<String> graph,List<String> namedGraph, final BindingSet bindings, FilterValueExpr filterExpr) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
 
 	
 	/**
@@ -143,7 +145,7 @@ public interface TripleSource {
 	 * @throws MalformedQueryException
 	 * @throws QueryEvaluationException
 	 */
-	public CloseableIteration<Statement, QueryEvaluationException> getStatements(RepositoryConnection conn, Resource subj, IRI pred, Value obj, Resource... contexts) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
+	public CloseableIteration<Statement, QueryEvaluationException> getStatements(RepositoryConnection conn, List<String> graph,List<String> namedGraph, Resource subj, IRI pred, Value obj, Resource... contexts) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
 	
 	
 	/**
@@ -159,7 +161,7 @@ public interface TripleSource {
 	 * @throws MalformedQueryException
 	 * @throws QueryEvaluationException
 	 */
-	public boolean hasStatements(StatementPattern stmt, RepositoryConnection conn, BindingSet bindings) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
+	public boolean hasStatements(StatementPattern stmt, RepositoryConnection conn, List<String> graph, List<String> namedGraph,  BindingSet bindings) throws RepositoryException, MalformedQueryException, QueryEvaluationException;
 	
 	/**
 	 * Check if the repository can return results for the given triple pattern represented
@@ -173,7 +175,7 @@ public interface TripleSource {
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public boolean hasStatements(RepositoryConnection conn, Resource subj, IRI pred, Value obj, Resource...contexts) throws RepositoryException;
+	public boolean hasStatements(RepositoryConnection conn, List<String> graph, List<String> namedGraph, Resource subj, IRI pred, Value obj, Resource...contexts) throws RepositoryException;
 	
 	/**
 	 * Check if the repository can return results for the given {@link ExclusiveGroup},

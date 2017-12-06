@@ -25,8 +25,11 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.algebra.StatementPattern;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fluidops.fedx.evaluation.TripleSource;
+import com.fluidops.fedx.evaluation.TripleSourceBase;
 import com.fluidops.fedx.evaluation.iterator.SingleBindingSetIteration;
 import com.fluidops.fedx.exception.IllegalQueryException;
 import com.fluidops.fedx.structures.Endpoint;
@@ -41,6 +44,7 @@ import com.fluidops.fedx.util.QueryStringUtil;
  * @author Andreas Schwarte
  */
 public class ExclusiveStatement extends FedXStatementPattern {
+	private static final Logger log = LoggerFactory.getLogger(ExclusiveStatement.class);
 	private static final long serialVersionUID = 3290145471772314112L;
 
 	public ExclusiveStatement(StatementPattern node, StatementSource owner, QueryInfo queryInfo) {
@@ -74,18 +78,20 @@ public class ExclusiveStatement extends FedXStatementPattern {
 			Boolean isEvaluated = false;	// is filter evaluated
 			String preparedQuery;
 			try {
-				preparedQuery = QueryStringUtil.selectQueryString(this, bindings, filterExpr, isEvaluated);
+				preparedQuery = QueryStringUtil.selectQueryString(getOwner().getGraph(),getOwner().getNamedGraph(),this, bindings, filterExpr, isEvaluated);
 			} catch (IllegalQueryException e1) {
+				log.info("evaluate");
+				log.info("graph="+getOwner().getGraph());
 				// TODO there might be an issue with filters being evaluated => investigate
 				/* all vars are bound, this must be handled as a check query, can occur in joins */
-				if (t.hasStatements(this, ownedConnection, bindings))
+				if (t.hasStatements(this, ownedConnection,getOwner().getGraph(),getOwner().getNamedGraph(), bindings))
 					return new SingleBindingSetIteration(bindings);
 				return new EmptyIteration<BindingSet, QueryEvaluationException>();
 			}
 					
-			return t.getStatements(preparedQuery, ownedConnection, bindings, (isEvaluated ? null : filterExpr) );
+			return t.getStatements(preparedQuery, ownedConnection,getOwner().getGraph(),getOwner().getNamedGraph(), bindings, (isEvaluated ? null : filterExpr) );
 		} else {
-			return t.getStatements(this, ownedConnection, bindings, filterExpr);
+			return t.getStatements(this, ownedConnection,getOwner().getGraph(),getOwner().getNamedGraph(), bindings, filterExpr);
 		}
 	}
 

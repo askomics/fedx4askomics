@@ -100,9 +100,9 @@ public class DefaultSourceSelection extends SourceSelection {
 			for (Endpoint e : endpoints) {
 				StatementSourceAssurance a = cache.canProvideStatements(q, e);
 				if (a == StatementSourceAssurance.HAS_LOCAL_STATEMENTS) {
-					addSource(stmt, new StatementSource(e.getId(), StatementSourceType.LOCAL));
+					addSource(stmt, new StatementSource(e.getId(), StatementSourceType.LOCAL,e.getGraph(),e.getNamedGraph()));
 				} else if (a == StatementSourceAssurance.HAS_REMOTE_STATEMENTS) {
-					addSource(stmt, new StatementSource(e.getId(), StatementSourceType.REMOTE));			
+					addSource(stmt, new StatementSource(e.getId(), StatementSourceType.REMOTE,e.getGraph(),e.getNamedGraph()));			
 				} else if (a == StatementSourceAssurance.POSSIBLY_HAS_STATEMENTS) {					
 					remoteCheckTasks.add( new CheckTaskPair(e, stmt));
 				}
@@ -279,17 +279,19 @@ public class DefaultSourceSelection extends SourceSelection {
 		//@Override
 		public CloseableIteration<BindingSet, QueryEvaluationException> call() {
 			try {
+				System.out.print("------------------------------------------------------------------------------------");
+				System.out.print("GRAPH:"+endpoint.getGraph());
 				TripleSource t = endpoint.getTripleSource();
 				RepositoryConnection conn = endpoint.getConn(); 
 
-				boolean hasResults = t.hasStatements(stmt, conn, EmptyBindingSet.getInstance());
+				boolean hasResults = t.hasStatements(stmt, conn,endpoint.getGraph(),endpoint.getNamedGraph(), EmptyBindingSet.getInstance());
 
 				DefaultSourceSelection sourceSelection = control.sourceSelection;
 				CacheEntry entry = CacheUtils.createCacheEntry(endpoint, hasResults);
 				sourceSelection.cache.updateEntry( new SubQuery(stmt), entry);
 
 				if (hasResults)
-					sourceSelection.addSource(stmt, new StatementSource(endpoint.getId(), StatementSourceType.REMOTE));
+					sourceSelection.addSource(stmt, new StatementSource(endpoint.getId(), StatementSourceType.REMOTE, endpoint.getGraph(),endpoint.getNamedGraph()));
 				
 				return null;
 			} catch (Exception e) {

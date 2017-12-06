@@ -110,6 +110,9 @@ public class Endpoint  {
 	protected TripleSource tripleSource;                           // the triple source, initialized when repository is set
 	protected EndpointConfiguration endpointConfiguration;         // additional endpoint type specific configuration
 
+	protected List<String> graph ;                                 // FROM clause
+	protected List<String> namedGraph ;                            // FROM Named clause
+
 	protected long responseTime = 0;
 	/**
 	 * Construct a new endpoint.
@@ -123,13 +126,15 @@ public class Endpoint  {
 	 * @param type
 	 * 			the type, e.g. SPARQL, NativeStore
 	 */
-	public Endpoint(String id, String name, String endpoint, EndpointType type, EndpointClassification endpointClassification) {
+	public Endpoint(String id, String name, String endpoint, EndpointType type, EndpointClassification endpointClassification, List<String> graph, List<String> namedGraph ) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.endpoint = endpoint;
 		this.type = type;
 		this.endpointClassification = endpointClassification;
+		this.graph = graph ;
+		this.namedGraph = namedGraph ;
 	}
 	
 	public String getName() {
@@ -322,6 +327,8 @@ public class Endpoint  {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((graph == null) ? 0 : graph.hashCode());
+		result = prime * result + ((namedGraph == null) ? 0 : namedGraph.hashCode());
 		return result;
 	}
 
@@ -344,13 +351,44 @@ public class Endpoint  {
 				return false;
 		} else if (!type.equals(other.type))
 			return false;
+		
+		if (graph == null) {
+			if (other.graph != null)
+				return false;
+		} else if (!graph.equals(other.graph))
+			return false;
+		
+		if (namedGraph == null) {
+			if (other.namedGraph != null)
+				return false;
+		} else if (!namedGraph.equals(other.namedGraph))
+			return false;
+		
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Endpoint [id=" + id + ", name=" + name + ", type=" + type + "]";
-	}		
+		return "Endpoint [id=" + id + ", name=" + name + ", type=" + type + ", from="+ graph.toString() + ", from named="+ namedGraph +"]";
+	}
+	
+	public List<String> getGraph() {
+		return graph;
+	}
+
+	public void setGraph(List<String> graph) {
+		this.graph = graph;
+	}
+
+	
+	
+	public List<String> getNamedGraph() {
+		return namedGraph;
+	}
+
+	public void setNamedGraph(List<String> namedGraph) {
+		this.namedGraph = namedGraph;
+	}
 	
 	
 }

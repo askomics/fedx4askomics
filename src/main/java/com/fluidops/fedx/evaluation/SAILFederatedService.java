@@ -34,8 +34,11 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 
 import com.fluidops.fedx.evaluation.iterator.InsertBindingsIteration;
 import com.fluidops.fedx.structures.Endpoint;
+import com.fluidops.fedx.util.QueryStringUtil;
 
 import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link FederatedService} which is registered for native store
@@ -46,6 +49,7 @@ import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 public class SAILFederatedService implements FederatedService {
 
 	private Endpoint endpoint;
+	public static Logger log = LoggerFactory.getLogger(SAILFederatedService.class);
 	
 	public SAILFederatedService(Endpoint endpoint) {
 		this.endpoint = endpoint;
@@ -63,6 +67,7 @@ public class SAILFederatedService implements FederatedService {
 	//@Override
 	public boolean ask(Service service, BindingSet bindings, String baseUri) throws QueryEvaluationException {
 		RepositoryConnection conn = endpoint.getConn();
+		log.info("=================================================== ask !!!!!!!!!!!!!!! (pas de gestion FROM)==========================");
 		try {
 			BooleanQuery query = conn.prepareBooleanQuery(QueryLanguage.SPARQL, service.getAskQueryString(), baseUri);
 			Iterator<Binding> bIter = bindings.iterator();
@@ -82,6 +87,7 @@ public class SAILFederatedService implements FederatedService {
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> select(Service service, Set<String> projectionVars, BindingSet bindings, String baseUri) throws QueryEvaluationException {
 		RepositoryConnection conn = endpoint.getConn();
+		log.info("=================================================== SELECT !!!!!!!!!!!!!!! (pas de gestion FROM)==========================");
 		try {
 			TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, service.getSelectQueryString(projectionVars), baseUri);
 			Iterator<Binding> bIter = bindings.iterator();

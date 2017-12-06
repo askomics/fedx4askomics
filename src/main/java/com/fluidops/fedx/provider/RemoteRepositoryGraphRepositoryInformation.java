@@ -54,8 +54,8 @@ public class RemoteRepositoryGraphRepositoryInformation extends RepositoryInform
 		initialize(graph, repNode);
 	}
 
-	public RemoteRepositoryGraphRepositoryInformation(String repositoryServer, String repositoryName) {
-		super("remote_" + repositoryName, "http://"+repositoryName, repositoryServer + "/" + repositoryName, EndpointType.RemoteRepository);
+	public RemoteRepositoryGraphRepositoryInformation(String repositoryServer, String repositoryName, String graph, String namedGraph) {
+		super("remote_" + repositoryName, "http://"+repositoryName, graph, namedGraph, repositoryServer + "/" + repositoryName, EndpointType.RemoteRepository);
 		setProperty("repositoryServer", repositoryServer);
 		setProperty("repositoryName", repositoryName);		
 	}

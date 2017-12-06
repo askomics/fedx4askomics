@@ -52,7 +52,7 @@ public class RemoteRepositoryProvider implements EndpointProvider {
             Repository repo = new HTTPRepository(repositoryServer, repositoryName); 
            	repo.initialize();
 		
-           	ProviderUtil.checkConnectionIfConfigured(config, repo);
+           	ProviderUtil.checkConnectionIfConfigured(config, repo, repoInfo.getGraph(),repoInfo.getNamedGraph());
            	
 			String location = repositoryServer + "/" + repositoryName;
 			EndpointClassification epc = EndpointClassification.Remote;
@@ -64,7 +64,7 @@ public class RemoteRepositoryProvider implements EndpointProvider {
 			FederatedServiceManager.getInstance().registerService(repoInfo.getName(), federatedService);
 			*/
 			
-			Endpoint res = new Endpoint(repoInfo.getId(), repoInfo.getName(), location, repoInfo.getType(), epc);
+			Endpoint res = new Endpoint(repoInfo.getId(), repoInfo.getName(), location, repoInfo.getType(), epc,repoInfo.getGraph(), repoInfo.getNamedGraph());
 			res.setEndpointConfiguration(repoInfo.getEndpointConfiguration());
 			res.setRepo(repo);
 			

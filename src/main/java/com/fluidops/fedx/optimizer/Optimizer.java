@@ -57,11 +57,8 @@ public class Optimizer {
 
 		if (logger.isTraceEnabled())
 			logger.trace("Query before Optimization: " + query);
-		
-		
 		/* original sesame optimizers */
-		new ConstantOptimizer(strategy).optimize(query, dataset, bindings);	// maybe remove this optimizer later
-
+		new ConstantOptimizer(strategy).optimize(query, dataset, bindings);	// maybe remove this optimizer later		
 		new DisjunctiveConstraintOptimizer().optimize(query, dataset, bindings);
 
 		/*

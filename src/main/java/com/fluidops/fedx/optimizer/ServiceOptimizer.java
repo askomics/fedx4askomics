@@ -97,7 +97,7 @@ public class ServiceOptimizer extends AbstractQueryModelVisitor<OptimizationExce
 				return new FedXService(service, queryInfo);
 			} 
 			
-			StatementSource source = new StatementSource(e.getId(), StatementSourceType.REMOTE);
+			StatementSource source = new StatementSource(e.getId(), StatementSourceType.REMOTE,e.getGraph(), e.getNamedGraph());
 			List<ExclusiveStatement> stmts = new ArrayList<ExclusiveStatement>();
 			// convert all statements to exclusive statements
 			for (List<StatementPattern> sts : serviceInfo.getStatements()) {

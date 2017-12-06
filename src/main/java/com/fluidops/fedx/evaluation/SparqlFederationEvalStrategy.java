@@ -75,6 +75,9 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 	public CloseableIteration<BindingSet, QueryEvaluationException> evaluateBoundJoinStatementPattern(
 			StatementTupleExpr stmt, List<BindingSet> bindings)
 	{
+		//log.info("================================ SparqlFederationEvalStrategy::evaluateBoundJoinStatementPattern ====================================");
+		//log.debug(stmt.toString());
+		//log.debug("----------------------------------------------- preparedQuery build........................");
 		// we can omit the bound join handling
 		if (bindings.size()==1)
 			return evaluate(stmt, bindings.get(0));
@@ -109,7 +112,8 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 	public CloseableIteration<BindingSet, QueryEvaluationException> evaluateGroupedCheck(
 			CheckStatementPattern stmt, List<BindingSet> bindings)
 	{
-
+		//log.info("====================================== SparqlFederationEvalStrategy::evaluateGroupedCheck =========================================");
+		
 		if (bindings.size()==1)
 			return stmt.evaluate(bindings.get(0));
 		
@@ -128,7 +132,7 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 	public CloseableIteration<BindingSet, QueryEvaluationException> evaluateIndependentJoinGroup(
 			IndependentJoinGroup joinGroup, BindingSet bindings)
 	{
-			
+		//log.info("====================================== SparqlFederationEvalStrategy::evaluateIndependentJoinGroup =========================================");
 		String preparedQuery = QueryStringUtil.selectQueryStringIndependentJoinGroup(joinGroup, bindings);
 		
 		try {
@@ -151,7 +155,7 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 	public CloseableIteration<BindingSet, QueryEvaluationException> evaluateIndependentJoinGroup(
 			IndependentJoinGroup joinGroup, List<BindingSet> bindings)
 	{
-				
+		//log.info("====================================== SparqlFederationEvalStrategy::evaluateIndependentJoinGroup =========================================");
 		String preparedQuery = QueryStringUtil.selectQueryStringIndependentJoinGroup(joinGroup, bindings);
 		
 		try {
@@ -188,16 +192,17 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 	{
 		
 		Boolean isEvaluated = false;
-			
+		//log.info("evaluateExclusiveGroup");
 		try  {
 			String preparedQuery = QueryStringUtil.selectQueryString(group, bindings, group.getFilterExpr(), isEvaluated);
 			// in order to avoid licking http route while iteration
 			return new BufferedCloseableIterator<BindingSet, QueryEvaluationException>(
-				tripleSource.getStatements(preparedQuery, conn, bindings, (isEvaluated ? null : group.getFilterExpr()))
+				tripleSource.getStatements(preparedQuery, conn, group.getOwner().getGraph(), group.getOwner().getNamedGraph(), bindings, (isEvaluated ? null : group.getFilterExpr()))
 			);
 		} catch (IllegalQueryException e) {
+			
 			/* no projection vars, e.g. local vars only, can occur in joins */
-			if (tripleSource.hasStatements(group, conn, bindings))
+			if (tripleSource.hasStatements(group, conn,bindings))
 				return new SingleBindingSetIteration(bindings);
 			return new EmptyIteration<BindingSet, QueryEvaluationException>();
 		}		

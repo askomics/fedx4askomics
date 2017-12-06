@@ -17,6 +17,9 @@
 
 package com.fluidops.fedx.algebra;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.rdf4j.query.algebra.AbstractQueryModelNode;
 import org.eclipse.rdf4j.query.algebra.QueryModelVisitor;
 
@@ -27,17 +30,46 @@ import org.eclipse.rdf4j.query.algebra.QueryModelVisitor;
  *
  */
 public class StatementSource extends AbstractQueryModelNode {
+	
+	//public static Logger log = LoggerFactory.getLogger(StatementSource.class);
+	
 	private static final long serialVersionUID = 3630439660226120336L;
 
 	public static enum StatementSourceType { LOCAL, REMOTE, REMOTE_POSSIBLY; }
 	
 	protected String id;
 	protected StatementSourceType type;
-		
-	public StatementSource(String name, StatementSourceType type) {
+	
+	/* askomics dev: manage name graphe */
+	
+	protected List<String> graph ;	
+	protected List<String> namedGraph ;	
+	
+	public List<String> getGraph() {
+		return graph;
+	}
+
+
+	public void setGraph(List<String> graph) {
+		this.graph = graph;
+	}
+	
+	public List<String> getNamedGraph() {
+		return namedGraph;
+	}
+
+
+	public void setNamedGraph(List<String> namedGraph) {
+		this.namedGraph = namedGraph;
+	}
+
+
+	public StatementSource(String name, StatementSourceType type, List<String> graph, List<String> namedGraph) {
 		super();
 		this.id = name;
 		this.type = type;
+		this.graph = new ArrayList<String>();
+		this.namedGraph = new ArrayList<String>();
 	}
 
 	
@@ -104,4 +136,19 @@ public class StatementSource extends AbstractQueryModelNode {
 		return type==StatementSourceType.LOCAL;
 	}
 	
+	public void setGraphAndNamedGraph(String preparedQuery) {
+		// manage graphs 
+		String prefix_graph = "";
+		
+		for ( String g : this.getGraph() ) {
+			prefix_graph += "FROM <"+g+"> ";
+		}
+
+		for ( String g : this.getNamedGraph() ) {
+			prefix_graph += "FROM NAMED <"+g+"> ";
+		}
+		//log.info(" = setGraphAndNamedGraph =");
+		preparedQuery = preparedQuery.replaceFirst("FROM <>", prefix_graph) ;
+		//log.info("ok");
+	}
 }

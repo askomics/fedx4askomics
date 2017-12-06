@@ -17,6 +17,8 @@
 
 package com.fluidops.fedx.evaluation;
 
+import java.util.List;
+
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -52,6 +54,8 @@ import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.common.iteration.EmptyIteration;
 import org.eclipse.rdf4j.common.iteration.ExceptionConvertingIteration;
 import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -65,6 +69,8 @@ import org.eclipse.rdf4j.common.iteration.Iterations;
  *
  */
 public class SparqlTripleSource extends TripleSourceBase implements TripleSource {
+	
+	//static Logger log = LoggerFactory.getLogger(SparqlTripleSource.class);
 	
 	private boolean useASKQueries = true;
 	final FederationEvalStrategy strategy;
@@ -80,10 +86,28 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 	
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(
-			String preparedQuery, RepositoryConnection conn, BindingSet bindings, FilterValueExpr filterExpr)
+			String preparedQuery, RepositoryConnection conn, List<String> graph,List<String> namedGraph,  BindingSet bindings, FilterValueExpr filterExpr)
 	{
+		//log.info(">>>>>>>>>>>>>>>>>>>>>>>> SparqlTripleSource::getStatements <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+		//log.debug("preparedQuery:"+preparedQuery);
+		/* OFI */
+		StringBuilder repl = new StringBuilder();
 		
+		for ( String g : graph) {
+			repl.append("FROM <"+g+"> ");
+		}
+
+		for ( String g : namedGraph ) {
+			repl.append("FROM NAMED <"+g+"> ");
+		}
+		
+		preparedQuery = preparedQuery.replaceFirst("FROM <>", repl.toString());
+		
+		//log.debug("preparedQuery replace from *"+preparedQuery+"*");
+		/* FIN OFI */
 		TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, preparedQuery, null);
+		
+		//log.debug("DISABLE INFERENCE............................");
 		//query.setMaxExecutionTime(10);
 		disableInference(query);
 		
@@ -112,6 +136,10 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 			return new BufferedCloseableIterator<BindingSet, QueryEvaluationException>(res);
 			
 		} catch (QueryEvaluationException ex) {
+			//log.error("gaph:"+graph.toString());
+			//log.error("gaphNamed:"+namedGraph.toString());
+			//log.error(preparedQuery);
+			//log.error(ex.getMessage());
 			Iterations.closeCloseable(res);
 			throw ExceptionUtil.traceExceptionSourceAndRepair(strategy.getFedXConnection().getEndpointManager(), conn, ex, "Subquery: " + preparedQuery);			
 		}
@@ -119,7 +147,7 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(
-			StatementPattern stmt, RepositoryConnection conn,
+			StatementPattern stmt, RepositoryConnection conn, List<String> graph,List<String> namedGraph,
 			BindingSet bindings, FilterValueExpr filterExpr)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException  {
@@ -128,36 +156,45 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 	}
 
 	@Override
-	public boolean hasStatements(RepositoryConnection conn, Resource subj,
+	public boolean hasStatements(RepositoryConnection conn, List<String> graph, List<String> namedGraph, Resource subj,
 			IRI pred, Value obj, Resource... contexts)
 			throws RepositoryException {
-		
+		//log.info("hasStatements");
 		if (!useASKQueries) {
 			StatementPattern st = new StatementPattern(new Var("s", subj), new Var("p", pred), new Var("o", obj));
 			try {
-				return hasStatements(st, conn, EmptyBindingSet.getInstance());
+				return hasStatements(st, conn, graph, namedGraph, EmptyBindingSet.getInstance());
 			} catch (Exception e) {
 				throw new RepositoryException(e);
 			}
 		}		
-		return super.hasStatements(conn, subj, pred, obj, contexts);
+		return super.hasStatements(conn, graph,namedGraph,  subj, pred, obj, contexts);
 	}
 	
 	//@Override
-	public boolean hasStatements(StatementPattern stmt, RepositoryConnection conn,
+	public boolean hasStatements(StatementPattern stmt, RepositoryConnection conn, List<String> graph, List<String> namedGraph,
 			BindingSet bindings) throws RepositoryException,
 			MalformedQueryException, QueryEvaluationException {
-
+		//log.info("hasStatements");
 		// decide whether to use ASK queries or a SELECT query
 		if (useASKQueries) {
 			/* remote boolean query */
-			String queryString = QueryStringUtil.askQueryString(stmt, bindings);
+			//log.info("graph="+graph);
+			String queryString = QueryStringUtil.askQueryString(stmt, graph, namedGraph, bindings);
+			//log.info("querystring1="+queryString);
+			
+			//log.info(conn.getClass().toString());
 			BooleanQuery query = conn.prepareBooleanQuery(QueryLanguage.SPARQL, queryString, null);
+			
 			disableInference(query);
 			
 			try {
 				monitorRemoteRequest();
+				//log.info("===================================================--------------------START =============="+conn.toString()+"  query="+queryString);
+				long startTime = System.currentTimeMillis();
 				boolean hasStatements = query.evaluate();
+				long endTime = System.currentTimeMillis();
+				System.out.println("That took " + (endTime - startTime) + " milliseconds");
 				return hasStatements;
 			} catch (QueryEvaluationException ex) {
 				throw ExceptionUtil.traceExceptionSourceAndRepair(strategy.getFedXConnection().getEndpointManager(), conn, ex, "Subquery: " + queryString);			
@@ -165,7 +202,8 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 			
 		} else {
 			/* remote select limit 1 query */
-			String queryString = QueryStringUtil.selectQueryStringLimit1(stmt, bindings);
+			String queryString = QueryStringUtil.selectQueryStringLimit1(stmt, graph, namedGraph, bindings);
+			//log.info("querystring2="+queryString);
 			TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 			disableInference(query);
 			
@@ -190,11 +228,12 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 			RepositoryConnection conn, BindingSet bindings)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException {
-		
+	//	log.info("hasStatements");
 		if (!useASKQueries) {
 			
 			/* remote select limit 1 query */
 			String queryString = QueryStringUtil.selectQueryStringLimit1(group, bindings);
+		//	log.info("querystring="+queryString);
 			TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 			disableInference(query);
 			
@@ -213,7 +252,7 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 		}		
 		
 		// default handling: use ASK query
-		return super.hasStatements(group, conn, bindings);
+		return super.hasStatements(group, conn , bindings);
 	}
 
 	//@Override
@@ -223,7 +262,7 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(
-			TupleExpr preparedQuery, RepositoryConnection conn,
+			TupleExpr preparedQuery, RepositoryConnection conn,List<String> graph, List<String> namedGraph,
 			BindingSet bindings, FilterValueExpr filterExpr)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException {
@@ -233,7 +272,7 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 
 	//@Override
 	public CloseableIteration<Statement, QueryEvaluationException> getStatements(
-			RepositoryConnection conn, Resource subj, IRI pred, Value obj,
+			RepositoryConnection conn, List<String> graph, List<String> namedGraph, Resource subj, IRI pred, Value obj,
 			Resource... contexts) throws RepositoryException,
 			MalformedQueryException, QueryEvaluationException
 	{

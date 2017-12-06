@@ -17,6 +17,8 @@
 
 package com.fluidops.fedx.evaluation;
 
+import java.util.List;
+
 import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.common.iteration.EmptyIteration;
 import org.eclipse.rdf4j.common.iteration.ExceptionConvertingIteration;
@@ -72,10 +74,12 @@ public class SailTripleSource extends TripleSourceBase implements TripleSource {
 	
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(
-			String preparedQuery, RepositoryConnection conn, final BindingSet bindings, final FilterValueExpr filterExpr)
+			String preparedQuery, RepositoryConnection conn, List<String> graph, List<String> namedGraph, final BindingSet bindings, final FilterValueExpr filterExpr)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException {
-		
+		log.info(" ======================  getStatements ===========================");
+		log.info("grazph="+graph.toString());
+		log.info("prepareQuery="+preparedQuery);
 		TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, preparedQuery, null);
 		disableInference(query);		
 		
@@ -99,11 +103,11 @@ public class SailTripleSource extends TripleSourceBase implements TripleSource {
 
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(
-			StatementPattern stmt, RepositoryConnection conn,
+			StatementPattern stmt, RepositoryConnection conn, List<String> graph, List<String> namedGraph,
 			final BindingSet bindings, FilterValueExpr filterExpr)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException  {
-	
+		log.info("getStatements");
 		Value subjValue = QueryAlgebraUtil.getVarValue(stmt.getSubjectVar(), bindings);
 		Value predValue = QueryAlgebraUtil.getVarValue(stmt.getPredicateVar(), bindings);
 		Value objValue = QueryAlgebraUtil.getVarValue(stmt.getObjectVar(), bindings);			
@@ -129,9 +133,9 @@ public class SailTripleSource extends TripleSourceBase implements TripleSource {
 	}
 
 	//@Override
-	public CloseableIteration<Statement, QueryEvaluationException> getStatements(RepositoryConnection conn, Resource subj, IRI pred, Value obj, Resource... contexts) throws RepositoryException,
+	public CloseableIteration<Statement, QueryEvaluationException> getStatements(RepositoryConnection conn, List<String> graph, List<String> namedGraph, Resource subj, IRI pred, Value obj, Resource... contexts) throws RepositoryException,
 			MalformedQueryException, QueryEvaluationException {
-		
+		log.info("getStatements");
 		// TODO add handling for contexts
 		RepositoryResult<Statement> repoResult = conn.getStatements(subj, pred, obj, true);
 		
@@ -150,10 +154,10 @@ public class SailTripleSource extends TripleSourceBase implements TripleSource {
 	
 	//@Override
 	public boolean hasStatements(StatementPattern stmt,
-			RepositoryConnection conn, BindingSet bindings)
+			RepositoryConnection conn, List<String> graph, List<String> namedGraph, BindingSet bindings)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException {
-
+		log.info("hasStatements");
 		Value subjValue = QueryAlgebraUtil.getVarValue(stmt.getSubjectVar(), bindings);
 		Value predValue = QueryAlgebraUtil.getVarValue(stmt.getPredicateVar(), bindings);
 		Value objValue = QueryAlgebraUtil.getVarValue(stmt.getObjectVar(), bindings);
@@ -169,7 +173,7 @@ public class SailTripleSource extends TripleSourceBase implements TripleSource {
 	@SuppressWarnings("unchecked")
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(
-			TupleExpr preparedQuery, RepositoryConnection conn,
+			TupleExpr preparedQuery, RepositoryConnection conn, List<String> graph, List<String> namedGraph,
 			BindingSet bindings, FilterValueExpr filterExpr)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException {
@@ -181,7 +185,7 @@ public class SailTripleSource extends TripleSourceBase implements TripleSource {
 		 *  connection is used. The extended connection provides a method to
 		 *  evaluate prepared queries without prior (obsolete) optimization.  
 		 */
-	
+		log.info("getStatements");
 		SailConnection sailConn = ((SailRepositoryConnection)conn).getSailConnection();
 		
 		CloseableIteration<BindingSet, QueryEvaluationException> res;

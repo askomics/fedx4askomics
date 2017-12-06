@@ -76,11 +76,11 @@ public class EndpointFactory {
 	 * 
 	 * @throws Exception
 	 */
-	public static Endpoint loadSPARQLEndpoint(Config config, HttpClient httpClient, String name, String endpoint) throws FedXException {
+	public static Endpoint loadSPARQLEndpoint(Config config, HttpClient httpClient, String name, String endpoint, String graph, String namedGraph) throws FedXException {
 		
 		EndpointProvider repProvider = new SPARQLProvider(config, httpClient);
 		String id = "sparql_" + endpoint.replace("http://", "").replace("/", "_");
-		return repProvider.loadEndpoint(new RepositoryInformation(id, name, endpoint, EndpointType.SparqlEndpoint));		
+		return repProvider.loadEndpoint(new RepositoryInformation(id, name, graph, namedGraph, endpoint, EndpointType.SparqlEndpoint ));		
 	}
 	
 	
@@ -95,22 +95,22 @@ public class EndpointFactory {
 	 * 
 	 * @throws FedXException
 	 */
-	public static Endpoint loadSPARQLEndpoint(Config config, HttpClient httpClient, String endpoint) throws FedXException {
+	public static Endpoint loadSPARQLEndpoint(Config config, HttpClient httpClient, String endpoint, String graph, String namedGraph) throws FedXException {
 		try {
 			String id = new URL(endpoint).getHost();
 			if (id.equals("localhost")) {
 				id = id + "_" + new URL(endpoint).getPort();
 			}
-			return loadSPARQLEndpoint(config, httpClient, "http://"+id, endpoint);
+			return loadSPARQLEndpoint(config, httpClient, "http://"+id, endpoint, graph, namedGraph);
 		} catch (MalformedURLException e) {
 			throw new FedXException("Malformed URL: " + endpoint);
 		}
 	}
 	
 	
-	public static Endpoint loadRemoteRepository(Config config, String repositoryServer, String repositoryName) throws FedXException {
+	public static Endpoint loadRemoteRepository(Config config, String repositoryServer, String repositoryName, String graph, String namedGraph) throws FedXException {
 		EndpointProvider repProvider = new RemoteRepositoryProvider(config);
-		return repProvider.loadEndpoint(new RemoteRepositoryGraphRepositoryInformation(repositoryServer, repositoryName));		
+		return repProvider.loadEndpoint(new RemoteRepositoryGraphRepositoryInformation(repositoryServer, repositoryName, graph, namedGraph));		
 	}
 	
 	/**
@@ -126,11 +126,11 @@ public class EndpointFactory {
 	 * 
 	 * @throws Exception
 	 */
-	public static Endpoint loadNativeEndpoint(Config config, String name, String location) throws FedXException {
+	public static Endpoint loadNativeEndpoint(Config config, String name, String location, String graph, String namedGraph) throws FedXException {
 		
 		EndpointProvider repProvider = new NativeStoreProvider(config);
 		String id = new File(location).getName();
-		return repProvider.loadEndpoint(new RepositoryInformation(id, name, location, EndpointType.NativeStore) );
+		return repProvider.loadEndpoint(new RepositoryInformation(id, name, graph, namedGraph, location, EndpointType.NativeStore) );
 	}
 	
 	/**
@@ -142,8 +142,8 @@ public class EndpointFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Endpoint loadNativeEndpoint(Config config, String name, String location, File baseDir) throws FedXException {
-		return loadNativeEndpoint(config, name, baseDir.getAbsolutePath() + "/" + location);
+	public static Endpoint loadNativeEndpoint(Config config, String name, String location, File baseDir, String graph, String namedGraph) throws FedXException {
+		return loadNativeEndpoint(config, name, baseDir.getAbsolutePath() + "/" + location, graph, namedGraph);
 	}
 	
 	
@@ -159,8 +159,8 @@ public class EndpointFactory {
 	 * 
 	 * @throws Exception
 	 */
-	public static Endpoint loadNativeEndpoint(Config config, String location) throws FedXException {
-		return loadNativeEndpoint(config, "http://" + new File(location).getName(), location);
+	public static Endpoint loadNativeEndpoint(Config config, String location, String graph, String namedGraph) throws FedXException {
+		return loadNativeEndpoint(config, "http://" + new File(location).getName(), location, graph, namedGraph);
 	}
 	
 	

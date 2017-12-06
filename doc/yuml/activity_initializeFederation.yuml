@@ -1,0 +1,1 @@
+(start)->(FedXFactory::initializeFederation[EndpointListProvider])->(FedX::Fedx[EndpointListProvider])->(FedX::getConnexion[endpointListProvider])->(FedXConnection::FedXConnection[List<Endpoint>])->(end)

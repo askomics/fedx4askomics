@@ -52,14 +52,15 @@ public class SPARQLProvider implements EndpointProvider {
 
 		try {
 			SPARQLRepository repo = new SPARQLRepository(repoInfo.getLocation());
+			
 			if (httpClient != null) {
 			    repo.setHttpClient(httpClient);
 			}
 			repo.initialize();
 			
-			long rtime = ProviderUtil.checkConnectionIfConfigured(config, repo);
+			long rtime = ProviderUtil.checkConnectionIfConfigured(config, repo, repoInfo.getGraph(),repoInfo.getNamedGraph());
 			if (rtime != 0) {
-				rtime = ProviderUtil.checkConnectionIfConfigured(config, repo); // measure again
+				rtime = ProviderUtil.checkConnectionIfConfigured(config, repo, repoInfo.getGraph(),repoInfo.getNamedGraph()); // measure again
 			}
 			
 			String location = repoInfo.getLocation();
@@ -73,7 +74,7 @@ public class SPARQLProvider implements EndpointProvider {
 			FederatedService Manager.getInstance().registerService(repoInfo.getName(), federatedService);
 			*/
 			
-			Endpoint res = new Endpoint(repoInfo.getId(), repoInfo.getName(), location, repoInfo.getType(), epc);
+			Endpoint res = new Endpoint(repoInfo.getId(), repoInfo.getName(), location, repoInfo.getType(), epc,repoInfo.getGraph(), repoInfo.getNamedGraph());
 			EndpointConfiguration ep = manipulateEndpointConfiguration(location, repoInfo.getEndpointConfiguration());
 			res.setEndpointConfiguration(ep);
 			res.setRepo(repo);

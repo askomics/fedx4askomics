@@ -61,9 +61,9 @@ public class NativeStoreProvider implements EndpointProvider {
 			SailRepository repo = new SailRepository(ns);
 			repo.initialize();
 			
-			ProviderUtil.checkConnectionIfConfigured(config, repo);
+			ProviderUtil.checkConnectionIfConfigured(config, repo, repoInfo.getGraph(),repoInfo.getNamedGraph());
 			
-			Endpoint res = new Endpoint(repoInfo.getId(), repoInfo.getName(), repoInfo.getLocation(), repoInfo.getType(), EndpointClassification.Local);
+			Endpoint res = new Endpoint(repoInfo.getId(), repoInfo.getName(), repoInfo.getLocation(), repoInfo.getType(), EndpointClassification.Local,repoInfo.getGraph(), repoInfo.getNamedGraph());
 			res.setEndpointConfiguration(repoInfo.getEndpointConfiguration());
 			res.setRepo(repo);
 			

@@ -32,6 +32,8 @@ import org.eclipse.rdf4j.query.algebra.QueryModelVisitor;
 import org.eclipse.rdf4j.query.algebra.StatementPattern;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fluidops.fedx.FedXConnection;
 import com.fluidops.fedx.evaluation.TripleSource;
@@ -49,6 +51,7 @@ import com.fluidops.fedx.structures.QueryInfo;
  * @author Andreas Schwarte
  */
 public class CheckStatementPattern implements StatementTupleExpr, BoundJoinTupleExpr {
+	private static final Logger log = LoggerFactory.getLogger(CheckStatementPattern.class);
 	private static final long serialVersionUID = 1543240924098875926L;
 	protected final FedXConnection conn;
 	protected final StatementTupleExpr stmt;
@@ -156,7 +159,7 @@ public class CheckStatementPattern implements StatementTupleExpr, BoundJoinTuple
 				Endpoint ownedEndpoint = conn.getEndpointManager().getEndpoint(source.getEndpointID());
 				RepositoryConnection ownedConnection = ownedEndpoint.getConn();
 				TripleSource t = ownedEndpoint.getTripleSource();
-				if (t.hasStatements(st, ownedConnection, bindings)) {
+				if (t.hasStatements(st, ownedConnection, source.getGraph(),source.getNamedGraph(), bindings)) {
 					return new SingleBindingSetIteration(bindings);
 				}
 			}

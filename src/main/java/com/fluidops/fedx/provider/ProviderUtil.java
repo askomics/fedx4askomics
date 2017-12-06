@@ -1,5 +1,7 @@
 package com.fluidops.fedx.provider;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.query.MalformedQueryException;
@@ -38,7 +40,7 @@ public class ProviderUtil {
 	 * @throws QueryEvaluationException
 	 * @throws MalformedQueryException
 	 */
-	public static long checkConnectionIfConfigured(Config cfg, Repository repo) {
+	public static long checkConnectionIfConfigured(Config cfg, Repository repo, List<String> graph, List<String> namedGraph) {
 		
 		if (!cfg.isValidateRepositoryConnections()) {
 			return 0;
@@ -48,7 +50,20 @@ public class ProviderUtil {
 		
 		RepositoryConnection conn = repo.getConnection();		
 		try {
-			TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT * WHERE { ?s ?p ?o } LIMIT 1");
+			//log.info("===========> checkConnectionIfConfigured-->prepareTupleQuery<========================");
+						
+			/* OFI */
+			StringBuilder from = new StringBuilder();
+			for ( String g : graph ) {
+				from.append("FROM <"+g+"> ");
+			}
+
+			for ( String g : namedGraph ) {
+				from.append("FROM NAMED <"+g+"> ");
+			}
+			/* FIN OFI */
+			
+			TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT * "+ from.toString()+" WHERE { ?s ?p ?o } LIMIT 1");
 			TupleQueryResult qRes = null;
 			try {
 				qRes = query.evaluate();

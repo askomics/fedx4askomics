@@ -17,6 +17,8 @@
 
 package com.fluidops.fedx.evaluation;
 
+import java.util.List;
+
 import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.common.iteration.EmptyIteration;
 
@@ -34,17 +36,22 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.impl.EmptyBindingSet;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fluidops.fedx.algebra.ExclusiveGroup;
 import com.fluidops.fedx.evaluation.iterator.GraphToBindingSetConversionIteration;
 import com.fluidops.fedx.evaluation.iterator.SingleBindingSetIteration;
 import com.fluidops.fedx.monitoring.Monitoring;
+import com.fluidops.fedx.provider.ProviderUtil;
 import com.fluidops.fedx.structures.Endpoint;
 import com.fluidops.fedx.structures.QueryType;
 import com.fluidops.fedx.util.QueryStringUtil;
 
 public abstract class TripleSourceBase implements TripleSource
 {
+	private static final Logger log = LoggerFactory.getLogger(TripleSourceBase.class);
+	
 	protected final Monitoring monitoringService;
 	protected final Endpoint endpoint;
 
@@ -56,16 +63,26 @@ public abstract class TripleSourceBase implements TripleSource
 
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> getStatements(
-			String preparedQuery, RepositoryConnection conn, QueryType queryType)
+			String preparedQuery, RepositoryConnection conn, List<String> graph,List<String> namedGraph, QueryType queryType)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException
 	{
+		log.info(" ======================  getStatements ===========================");
+		log.info("grazph="+graph.toString());
+		log.info("prepareQuery="+preparedQuery);
+		//preparedQuery = preparedQuery.replaceAll("#.*(?=\\n)","");
+		log.info(preparedQuery);
 		switch (queryType)
 		{
 		case SELECT:
 			monitorRemoteRequest();
+			System.out.println("preparedQuery:"+preparedQuery);
+			//System.exit(0);
+			log.info(" ======================  prepareTupleQuery getStatements ===========================");
 			TupleQuery tQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, preparedQuery);
+			log.info(" ======================  disableInference getStatements ===========================");
 			disableInference(tQuery);
+			log.info(" ======================  evaluate getStatements ===========================");
 			return tQuery.evaluate();
 		case CONSTRUCT:
 			monitorRemoteRequest();
@@ -85,7 +102,7 @@ public abstract class TripleSourceBase implements TripleSource
 	
 
 	//@Override
-	public boolean hasStatements(RepositoryConnection conn, Resource subj,
+	public boolean hasStatements(RepositoryConnection conn, List<String> graph, List<String> namedGraph, Resource subj,
 			IRI pred, Value obj, Resource... contexts) throws RepositoryException
 	{
 		return conn.hasStatement(subj, pred, obj, false, contexts);

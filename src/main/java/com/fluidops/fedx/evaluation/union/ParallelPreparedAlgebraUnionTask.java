@@ -55,7 +55,7 @@ public class ParallelPreparedAlgebraUnionTask implements Callable<CloseableItera
 
 	//@Override
 	public CloseableIteration<BindingSet, QueryEvaluationException> call() {
-		return tripleSource.getStatements(preparedQuery, ep.getConn(), bindings, filterExpr);
+		return tripleSource.getStatements(preparedQuery, ep.getConn(), ep.getGraph(), ep.getNamedGraph(), bindings, filterExpr);
 	}
 
 	public String toString() {

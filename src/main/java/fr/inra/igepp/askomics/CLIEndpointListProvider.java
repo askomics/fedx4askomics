@@ -54,26 +54,26 @@ public class CLIEndpointListProvider implements EndpointListProvider {
 	protected void addEndpoint(String name, String url) {
 		endpointsNamed.put(name, url);
 		endpointSupportAsk.put(name,true);
-		this.gb.updateListGraph(url);
+		//this.gb.updateListGraph(url);
 		System.out.print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ SIZE:"+this.gb.nbEndpoint());
 	}
 	
 	protected void addEndpointAskomics(String name, String url) {
 		endpointsNamedAskomics.put(name, url);
 		endpointSupportAsk.put(name,true);
-		this.gb.updateListGraph(url);
+		//this.gb.updateListGraph(url);
 	}
 
 	protected void addEndpoint(String name, String url, Boolean supportAsk) {
 		endpointsNamed.put(name, url);
 		endpointSupportAsk.put(name,supportAsk);
-		this.gb.updateListGraph(url);
+		//this.gb.updateListGraph(url);
 	}
 	
 	protected void addEndpointAskomics(String name, String url, Boolean supportAsk) {
 		endpointsNamedAskomics.put(name, url);
 		endpointSupportAsk.put(name,supportAsk);
-		this.gb.updateListGraph(url);
+		//this.gb.updateListGraph(url);
 	}
 
 	protected void removeEndpoint(String name) {

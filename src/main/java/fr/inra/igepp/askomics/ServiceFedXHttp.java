@@ -56,7 +56,6 @@ public class ServiceFedXHttp implements HttpHandler {
 	protected FedXSailRepository repo = null;
 
 	public ServiceFedXHttp() {
-		start();
 	}
 
 	public void finalize() {
@@ -78,7 +77,9 @@ public class ServiceFedXHttp implements HttpHandler {
 
 	// @Override
 	public void handle(HttpExchange t) throws IOException {
-
+		
+		start();
+		
 		System.out.println("Method:"+t.getRequestMethod());
 		String endpoints = "";
 		String query = "";
@@ -138,8 +139,8 @@ public class ServiceFedXHttp implements HttpHandler {
 		}
 
 		try {
-
-			String sres = this.runQuery(query);
+			
+			String sres = runQuery(query);
 
 			Headers headers = t.getResponseHeaders();
 			headers.set("Content-Type", String.format("application/json; charset=%s", StandardCharsets.UTF_8));
@@ -214,7 +215,8 @@ public class ServiceFedXHttp implements HttpHandler {
 			
 			this.clients.setGraph(GraphBuilder.getGraph(sparqlRequest,"from"));
 			this.clients.setNamedGraph(GraphBuilder.getGraph(sparqlRequest,"from named"));
-			
+			//this.clients.setGraph("");
+			//this.clients.setNamedGraph("");
 			
 			repo = FedXFactory.initializeFederation(config, this.clients);
 		} catch (FedXException e) {
@@ -260,13 +262,14 @@ public class ServiceFedXHttp implements HttpHandler {
 				System.out.println("build results");
 				w.startQueryResult(res.getBindingNames());
 
-
+				int iCount = 0;
 				while (res.hasNext()) {
+					iCount++;
 					w.handleSolution(res.next());
 				}
 
 				w.endQueryResult();
-				System.out.println("build results ok");
+				System.out.println("build results ok nb res:"+iCount);
 				sres = new String( bao.toByteArray(), java.nio.charset.StandardCharsets.UTF_8 );
 
 			} else if ( outputFormat == OutputFormat.STDOUT ) {

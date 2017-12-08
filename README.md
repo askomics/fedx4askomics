@@ -7,7 +7,7 @@ mvn clean dependency:copy-dependencies package
 # HTTP Server
 
 ```
-java -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.ServiceFedXHttp -e test -p 4040
+java -d64 -Xms512m -Xmx2g -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.ServiceFedXHttp -e test -p 4040
 ```
 
 # Send HTTP sparqlrequest

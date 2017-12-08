@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SparqlTripleSource extends TripleSourceBase implements TripleSource {
 	
-	//static Logger log = LoggerFactory.getLogger(SparqlTripleSource.class);
+	static Logger log = LoggerFactory.getLogger(SparqlTripleSource.class);
 	
 	private boolean useASKQueries = true;
 	final FederationEvalStrategy strategy;
@@ -136,10 +136,10 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 			return new BufferedCloseableIterator<BindingSet, QueryEvaluationException>(res);
 			
 		} catch (QueryEvaluationException ex) {
-			//log.error("gaph:"+graph.toString());
-			//log.error("gaphNamed:"+namedGraph.toString());
-			//log.error(preparedQuery);
-			//log.error(ex.getMessage());
+			log.error("gaph:"+graph.toString());
+			log.error("gaphNamed:"+namedGraph.toString());
+			log.error(preparedQuery);
+			log.error(ex.getMessage());
 			Iterations.closeCloseable(res);
 			throw ExceptionUtil.traceExceptionSourceAndRepair(strategy.getFedXConnection().getEndpointManager(), conn, ex, "Subquery: " + preparedQuery);			
 		}

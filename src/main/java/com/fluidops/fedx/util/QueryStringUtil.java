@@ -596,7 +596,7 @@ public class QueryStringUtil {
 	 */
 	public static String askQueryString( StatementPattern stmt, List<String> graph, List<String> namedGraph, BindingSet bindings ) {
 		//log.info("================================== QueryStringUtil::askQueryString 2 ====================================");
-		//log.debug(stmt.toString());
+		//log.info(stmt.toString());
 		
 		Set<String> varNames = new HashSet<String>();
 		String s = constructStatement(stmt, varNames, bindings);
@@ -617,7 +617,7 @@ public class QueryStringUtil {
 		/* FIN OFI */
 		
 		res.append("{").append(s).append(" }");
-		//log.debug(res.toString());
+		//log.info(res.toString());
 		return res.toString();		
 	}
 	
@@ -650,7 +650,7 @@ public class QueryStringUtil {
 		
 		res.append(" WHERE {");
 		res.append(s).append(" } LIMIT 1");
-		
+		//log.info(res.toString());
 		return res.toString();		
 	}
 	
@@ -687,7 +687,7 @@ public class QueryStringUtil {
 			res.append( constructStatement(s, varNames, bindings) );
 		
 		res.append(" } LIMIT 1");
-		
+		//log.info(res.toString());
 		return res.toString();		
 	}
 	
@@ -702,12 +702,13 @@ public class QueryStringUtil {
 	 * @return
 	 */
 	protected static String constructStatement(StatementPattern stmt, Set<String> varNames, BindingSet bindings) {
+		////log.info("================================== QueryStringUtil::constructStatement ====================================");
 		StringBuilder sb = new StringBuilder();
 		
 		sb = appendVar(sb, stmt.getSubjectVar(), varNames, bindings).append(" ");
 		sb = appendVar(sb, stmt.getPredicateVar(), varNames, bindings).append(" ");
 		sb = appendVar(sb, stmt.getObjectVar(), varNames, bindings).append(" . ");
-		
+		//log.info(sb.toString());
 		return sb.toString();
 	}
 	
@@ -723,12 +724,13 @@ public class QueryStringUtil {
 	 * @return
 	 */
 	protected static String constructStatementId(StatementPattern stmt, String varID, Set<String> varNames, BindingSet bindings) {
+		//log.info("================================== QueryStringUtil::constructStatementId ====================================");
 		StringBuilder sb = new StringBuilder();
 		
 		sb = appendVarId(sb, stmt.getSubjectVar(), varID, varNames, bindings).append(" ");
 		sb = appendVarId(sb, stmt.getPredicateVar(), varID, varNames, bindings).append(" ");
 		sb = appendVarId(sb, stmt.getObjectVar(), varID, varNames, bindings).append(" . ");
-		
+		//log.info(sb.toString());
 		return sb.toString();
 	}
 	
@@ -743,6 +745,7 @@ public class QueryStringUtil {
 	 * @return
 	 */
 	protected static String constructStatementCheckId(StatementPattern stmt, int varID, Set<String> varNames, BindingSet bindings) {
+		//log.info("================================== QueryStringUtil::constructStatementCheckId ====================================");
 		StringBuilder sb = new StringBuilder();
 		
 		String _varID = Integer.toString(varID);
@@ -763,7 +766,7 @@ public class QueryStringUtil {
 		}
 		
 		sb.append(" FILTER (?o_").append(_varID).append(" = ").append(objValue).append(" )");
-				
+		//log.info(sb.toString());
 		return sb.toString();
 	}
 	

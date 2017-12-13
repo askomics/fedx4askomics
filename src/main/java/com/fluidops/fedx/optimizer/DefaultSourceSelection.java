@@ -279,8 +279,6 @@ public class DefaultSourceSelection extends SourceSelection {
 		//@Override
 		public CloseableIteration<BindingSet, QueryEvaluationException> call() {
 			try {
-				System.out.print("------------------------------------------------------------------------------------");
-				System.out.print("GRAPH:"+endpoint.getGraph());
 				TripleSource t = endpoint.getTripleSource();
 				RepositoryConnection conn = endpoint.getConn(); 
 

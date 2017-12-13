@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.eclipse.rdf4j.query.algebra.ArbitraryLengthPath;
 import org.eclipse.rdf4j.query.algebra.Join;
 import org.eclipse.rdf4j.query.algebra.Service;
 import org.eclipse.rdf4j.query.algebra.StatementPattern;
@@ -98,17 +99,24 @@ public class OptimizerUtil
 				freeVars.add(st.getPredicateVar().getName());
 			if (st.getObjectVar().getValue()==null)
 				freeVars.add(st.getObjectVar().getName());
+			//OFI ...ajout du return, sion l execpetion est lancé.
+			//----------------------------------------------------
+			return freeVars;
 		}
 		/*
 		if (tupleExpr instanceof ArbitraryLengthPath) {
 			List<String> freeVars = new ArrayList<String>();
 			ArbitraryLengthPath alp = (ArbitraryLengthPath)tupleExpr;
 			tupleExpr = alp.getPathExpression();
+			if (alp.getSubjectVar().getValue()==null)
+				freeVars.add(alp.getSubjectVar().getName());
+			if (alp.getObjectVar().getValue()==null)
+				freeVars.add(alp.getObjectVar().getName());
 			System.out.println(tupleExpr);
+			System.out.println(freeVars);
 			return freeVars;
 		}
 		*/
-		
 		throw new FedXRuntimeException("Type " + tupleExpr.getClass().getSimpleName() + " not supported for cost estimation. If you run into this, please report a bug.");
 		
 	}

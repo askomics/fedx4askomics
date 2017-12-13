@@ -7,7 +7,7 @@ mvn clean dependency:copy-dependencies package
 # HTTP Server
 
 ```
-java -d64 -Xms512m -Xmx2g -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.ServiceFedXHttp -e test -p 4040
+java -d64 -Xms512m -Xmx2g -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.HttpSimpleServer -e test -p 4040
 ```
 
 # Send HTTP sparqlrequest
@@ -26,9 +26,9 @@ SELECT ...
 ## sample
 
 ```
-#endpoint,askomics-prod,http://url.production.inra.fr/virtuoso/sparql,false
-#endpoint,Reactome,https://www.ebi.ac.uk/rdf/services/sparql,false
-#endpoint,local,http://localhost:8890/sparql,false
+#endpoint,askomics,askomics-prod,http://url.production.inra.fr/virtuoso/sparql,false
+#endpoint,external,Reactome,https://www.ebi.ac.uk/rdf/services/sparql,false
+#endpoint,askomics,local,http://localhost:8890/sparql,false
 PREFIX : <http://www.semanticweb.org/irisa/ontologies/2016/1/igepp-ontology#>
 PREFIX rdfg: <http://www.w3.org/2004/03/trix/rdfg-1/>
 PREFIX prov: <http://www.w3.org/ns/prov#>

@@ -67,22 +67,22 @@ public abstract class TripleSourceBase implements TripleSource
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException
 	{
-		log.info(" ======================  getStatements ===========================");
-		log.info("grazph="+graph.toString());
-		log.info("prepareQuery="+preparedQuery);
+		//log.info(" ======================  getStatements ===========================");
+		//log.info("grazph="+graph.toString());
+		//log.info("prepareQuery="+preparedQuery);
 		//preparedQuery = preparedQuery.replaceAll("#.*(?=\\n)","");
-		log.info(preparedQuery);
+		//log.info(preparedQuery);
 		switch (queryType)
 		{
 		case SELECT:
 			monitorRemoteRequest();
-			System.out.println("preparedQuery:"+preparedQuery);
+			//System.out.println("preparedQuery:"+preparedQuery);
 			//System.exit(0);
-			log.info(" ======================  prepareTupleQuery getStatements ===========================");
+			//log.info(" ======================  prepareTupleQuery getStatements ===========================");
 			TupleQuery tQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, preparedQuery);
-			log.info(" ======================  disableInference getStatements ===========================");
+			//log.info(" ======================  disableInference getStatements ===========================");
 			disableInference(tQuery);
-			log.info(" ======================  evaluate getStatements ===========================");
+			//log.info(" ======================  evaluate getStatements ===========================");
 			return tQuery.evaluate();
 		case CONSTRUCT:
 			monitorRemoteRequest();
@@ -139,7 +139,7 @@ public abstract class TripleSourceBase implements TripleSource
 	protected void disableInference(Query query) {
 		// set includeInferred to false explicitly
 		try {
-			query.setIncludeInferred(false);
+			query.setIncludeInferred(true);
 		} catch (Exception e) { }
 	}
 	

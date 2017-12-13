@@ -41,9 +41,9 @@ import com.sun.net.httpserver.*;
 import java.util.regex.*;
 
 @SuppressWarnings("restriction")
-public class ServiceFedXHttp implements HttpHandler {
+public class HttpSimpleServer implements HttpHandler {
 
-	public static Logger log = LoggerFactory.getLogger(ServiceFedXHttp.class);
+	public static Logger log = LoggerFactory.getLogger(HttpSimpleServer.class);
 
 	protected enum OutputFormat { STDOUT, JSON, XML; }
 	protected OutputFormat outputFormat = OutputFormat.JSON ;
@@ -55,7 +55,7 @@ public class ServiceFedXHttp implements HttpHandler {
 	Config config = null;
 	protected FedXSailRepository repo = null;
 
-	public ServiceFedXHttp() {
+	public HttpSimpleServer() {
 	}
 
 	public void finalize() {
@@ -122,14 +122,20 @@ public class ServiceFedXHttp implements HttpHandler {
 
 		try{
 
-			Pattern p = Pattern .compile("#\\s*endpoint\\s*,\\s*(\\w+)\\s*,\\s*(\\S+)\\s*,\\s*(true|false)");
+			Pattern p = Pattern .compile("#\\s*endpoint\\s*,(\\w+),\\s*(\\w+)\\s*,\\s*(\\S+)\\s*,\\s*(true|false)");
 			Matcher m = p.matcher(query);
 
 			while (m.find()) {
 				System.out.println(" *** Manage Endpoint *** \n"+query.substring(m.start(), m.end()));
-				this.clients.addEndpoint(m.group(1),m.group(2),Boolean.valueOf(m.group(3)));
+				System.out.println("TYPE:"+ m.group(1));
+				if ( m.group(1).compareTo("askomics") == 0 ) { 
+					this.clients.addEndpointAskomics(m.group(2),m.group(3),Boolean.valueOf(m.group(4)));
+				} else {
+					this.clients.addEndpoint(m.group(2),m.group(3),Boolean.valueOf(m.group(4)));
+				}
+			
 			}
-
+			
 		}catch(PatternSyntaxException pse){
 			System.err.println("PatternSyntaxException ..."+pse.getMessage());
 		}
@@ -151,6 +157,7 @@ public class ServiceFedXHttp implements HttpHandler {
 		}
 		catch (Exception e) {
 			System.err.println(" ** Manage exception **");
+			System.err.println(e.getMessage());
 			/*
       Errors with HTTP Status Code 400 (Bad Request)
 
@@ -209,7 +216,7 @@ public class ServiceFedXHttp implements HttpHandler {
 			config.set("debugQueryPlan", "false");
 			config.set("monitoring.logQueries", "false");
 			config.set("monitoring.logQueryPlan", "false");
-			config.set("workerThreads", "5");
+			config.set("workerThreads", "20");
 			
 			//TODO: set FROM
 			
@@ -244,6 +251,7 @@ public class ServiceFedXHttp implements HttpHandler {
 			} 
 
 			System.out.println("evaluate");
+			log.info(query.toString());
 			TupleQueryResult res = query.evaluate();
 			System.out.println("evaluate ok");
 
@@ -305,7 +313,7 @@ public class ServiceFedXHttp implements HttpHandler {
 
 	public static void main(String[] args) {
 
-		ServiceFedXHttp app = new ServiceFedXHttp();
+		HttpSimpleServer app = new HttpSimpleServer();
 		app.start();
 
 		System.out.println(" -- Manage FedX SPARQL Request for AskOmics -- ");

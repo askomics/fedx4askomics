@@ -132,7 +132,7 @@ public class JoinOrderOptimizer {
 		
 		
 		log.warn("No cost estimation for " + tupleExpr.getClass().getSimpleName() + " available.");
-		
+		//return 100d;
 		return 1000d;
 	}
 	

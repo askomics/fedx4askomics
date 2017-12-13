@@ -36,6 +36,7 @@ import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.algebra.ArbitraryLengthPath;
 import org.eclipse.rdf4j.query.algebra.Projection;
 import org.eclipse.rdf4j.query.algebra.TupleExpr;
 import org.eclipse.rdf4j.query.algebra.ValueExpr;
@@ -205,15 +206,40 @@ public abstract class FederationEvalStrategy extends StrictEvaluationStrategy {
 	public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(
 			TupleExpr expr, BindingSet bindings)
 	{
+		//log.info("  =================================================================== EVALUATE ==================================================");
+		//log.info(expr.toString());
+		//log.info(expr.getClass().getName());//ArbitraryLengthPath
+		//log.info("---------------------------------------------------------");
 		if (expr instanceof FedXExpr) {
+			//log.info("-----------------------------------------------------------------------------------------------------------------------------------------------FEDEX EXPRESSION !");
 			FedXExpr fexpr = (FedXExpr)expr;
 			EvalVisitor visitor = new EvalVisitor(bindings);
 			fexpr.visit(visitor);
+			//log.info(visitor.get().toString());
 			return visitor.get();
 		}
+		/* Test OFI */
+		//if ( expr instanceof ArbitraryLengthPath ) {
+			
+		//}
 		
+		//log.info(" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++RDF4J EXPRESSION !");
 		return super.evaluate(expr, bindings);
 	}
+	
+	/***** OFI *************/
+	//public CloseableIteration<BindingSet, QueryEvaluationException> evaluateArbitraryLengthPath(ArbitraryLengthPath alp, BindingSet bindings) {
+		/*
+		List<TupleExpr> args = join.getArgs();
+		CloseableIteration<BindingSet, QueryEvaluationException> result = evaluate(args.get(0), bindings);
+		ControlledWorkerScheduler scheduler = conn.getFederation().getScheduler();
+		for (int i = 1, n = args.size(); i < n; ++i) {
+			result = executeJoin(scheduler, result, args.get(i), bindings, join.getQueryInfo());
+		}
+		return result;
+		*/
+	//}
+	
 	
 	public abstract void evaluate(QueueIteration<BindingSet> qit, TupleExpr expr, List<BindingSet> bindings);
 	

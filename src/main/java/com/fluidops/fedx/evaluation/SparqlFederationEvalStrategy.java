@@ -76,7 +76,7 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 			StatementTupleExpr stmt, List<BindingSet> bindings)
 	{
 		//log.info("================================ SparqlFederationEvalStrategy::evaluateBoundJoinStatementPattern ====================================");
-		//log.debug(stmt.toString());
+		//log.info(stmt.toString());
 		//log.debug("----------------------------------------------- preparedQuery build........................");
 		// we can omit the bound join handling
 		if (bindings.size()==1)
@@ -113,6 +113,7 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 			CheckStatementPattern stmt, List<BindingSet> bindings)
 	{
 		//log.info("====================================== SparqlFederationEvalStrategy::evaluateGroupedCheck =========================================");
+		//log.info(stmt.toString());
 		
 		if (bindings.size()==1)
 			return stmt.evaluate(bindings.get(0));
@@ -134,7 +135,7 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 	{
 		//log.info("====================================== SparqlFederationEvalStrategy::evaluateIndependentJoinGroup =========================================");
 		String preparedQuery = QueryStringUtil.selectQueryStringIndependentJoinGroup(joinGroup, bindings);
-		
+		//log.info(preparedQuery);
 		try {
 			List<StatementSource> statementSources = joinGroup.getMembers().get(0).getStatementSources();	// TODO this is only correct for the prototype (=> different endpoints)
 			CloseableIteration<BindingSet, QueryEvaluationException> result = evaluateAtStatementSources(preparedQuery, statementSources, joinGroup.getQueryInfo());
@@ -157,7 +158,7 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 	{
 		//log.info("====================================== SparqlFederationEvalStrategy::evaluateIndependentJoinGroup =========================================");
 		String preparedQuery = QueryStringUtil.selectQueryStringIndependentJoinGroup(joinGroup, bindings);
-		
+		//log.info(preparedQuery);
 		try {
 			List<StatementSource> statementSources = joinGroup.getMembers().get(0).getStatementSources();	// TODO this is only correct for the prototype (=> different endpoints)
 			CloseableIteration<BindingSet, QueryEvaluationException> result = evaluateAtStatementSources(preparedQuery, statementSources, joinGroup.getQueryInfo());
@@ -180,6 +181,7 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 			CloseableIteration<BindingSet, QueryEvaluationException> leftIter,
 			TupleExpr rightArg, BindingSet bindings, QueryInfo queryInfo)
 	{
+		//log.info("====================================== SparqlFederationEvalStrategy::executeJoin =========================================");
 		ControlledWorkerBoundJoin join = new ControlledWorkerBoundJoin(joinScheduler, this, leftIter, rightArg, bindings, queryInfo);
 		return join;
 	}
@@ -190,11 +192,12 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 			ExclusiveGroup group, RepositoryConnection conn,
 			TripleSource tripleSource, BindingSet bindings)
 	{
-		
+		//log.info("====================================== SparqlFederationEvalStrategy::evaluateExclusiveGroup =========================================");
 		Boolean isEvaluated = false;
 		//log.info("evaluateExclusiveGroup");
 		try  {
 			String preparedQuery = QueryStringUtil.selectQueryString(group, bindings, group.getFilterExpr(), isEvaluated);
+			//log.info(preparedQuery);
 			// in order to avoid licking http route while iteration
 			return new BufferedCloseableIterator<BindingSet, QueryEvaluationException>(
 				tripleSource.getStatements(preparedQuery, conn, group.getOwner().getGraph(), group.getOwner().getNamedGraph(), bindings, (isEvaluated ? null : group.getFilterExpr()))
@@ -212,6 +215,7 @@ public class SparqlFederationEvalStrategy extends FederationEvalStrategy {
 
 	@Override
 	public void evaluate(QueueIteration<BindingSet> qit, TupleExpr expr, List<BindingSet> bindings) {
+		//log.info("==================EXCEPTION==================== SparqlFederationEvalStrategy::evaluate ================================EXCEPTION=========");
 		throw new NotImplementedException("evaluate");
 	}
 }

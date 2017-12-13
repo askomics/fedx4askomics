@@ -11,6 +11,7 @@ import com.fluidops.fedx.EndpointListProvider;
 import com.fluidops.fedx.FedX;
 import com.fluidops.fedx.exception.FedXException;
 import com.fluidops.fedx.structures.Endpoint;
+import com.fluidops.fedx.structures.SparqlEndpointConfiguration;
 import com.fluidops.fedx.util.EndpointFactory;
 
 public class CLIEndpointListProvider implements EndpointListProvider {
@@ -52,28 +53,30 @@ public class CLIEndpointListProvider implements EndpointListProvider {
 	}
 
 	protected void addEndpoint(String name, String url) {
+		System.out.println(" ** EXTERNAL ENDPOINT **");
+		System.out.println(" ** NAME : "+name);
+		System.out.println(" ** URL : "+url);
 		endpointsNamed.put(name, url);
 		endpointSupportAsk.put(name,true);
 		//this.gb.updateListGraph(url);
-		System.out.print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ SIZE:"+this.gb.nbEndpoint());
 	}
 	
 	protected void addEndpointAskomics(String name, String url) {
+		System.out.println(" ** ASKOMICS ENDPOINT **");
+		System.out.println(" ** NAME : "+name);
+		System.out.println(" ** URL : "+url);
 		endpointsNamedAskomics.put(name, url);
 		endpointSupportAsk.put(name,true);
-		//this.gb.updateListGraph(url);
 	}
 
 	protected void addEndpoint(String name, String url, Boolean supportAsk) {
 		endpointsNamed.put(name, url);
 		endpointSupportAsk.put(name,supportAsk);
-		//this.gb.updateListGraph(url);
 	}
 	
 	protected void addEndpointAskomics(String name, String url, Boolean supportAsk) {
 		endpointsNamedAskomics.put(name, url);
 		endpointSupportAsk.put(name,supportAsk);
-		//this.gb.updateListGraph(url);
 	}
 
 	protected void removeEndpoint(String name) {
@@ -121,10 +124,28 @@ public class CLIEndpointListProvider implements EndpointListProvider {
 			String endpoint = entry.getValue();
 			System.out.println("====================================== "+ endpoint +" ===============================================");
 			System.out.println("GRAPH:"+gb.getGraphMatchingWithQuery(endpoint, graph));
-			String subgraph = gb.getGraphMatchingWithQuery(endpoint, graph);
-			String subgraphnamed = gb.getGraphMatchingWithQuery(endpoint, namedGraph);
-			endpoints.add( EndpointFactory.loadSPARQLEndpoint(config, federation.getHttpClient(), endpoint, 
-					subgraph, subgraphnamed));
+			String subgraph = "";
+			String subgraphnamed = "";
+			Endpoint e = EndpointFactory.loadSPARQLEndpoint(config, federation.getHttpClient(), endpoint, subgraph, subgraphnamed) ;
+			SparqlEndpointConfiguration sec = new SparqlEndpointConfiguration();
+			System.out.println(endpointSupportAsk);
+			sec.setSupportsASKQueries(endpointSupportAsk.get(entry.getKey()));
+			e.setEndpointConfiguration(sec);
+			endpoints.add(e);
+		}
+		
+		for (Map.Entry<String, String> entry : endpointsNamedAskomics.entrySet()) {
+			System.out.println(entry.getKey()+" : "+ entry.getValue());
+			String endpoint = entry.getValue();
+			System.out.println("============================= ASKOMICS= "+ endpoint +" ===============================================");
+			System.out.println("GRAPH:"+gb.getGraphMatchingWithQuery(endpoint, graph));
+			String subgraph = graph ; //gb.getGraphMatchingWithQuery(endpoint, graph);
+			String subgraphnamed = namedGraph ; //gb.getGraphMatchingWithQuery(endpoint, namedGraph);
+			Endpoint e = EndpointFactory.loadSPARQLEndpoint(config, federation.getHttpClient(), endpoint, subgraph, subgraphnamed) ;
+			SparqlEndpointConfiguration sec = new SparqlEndpointConfiguration();
+			sec.setSupportsASKQueries(endpointSupportAsk.get(entry.getKey()));
+			e.setEndpointConfiguration(sec);
+			endpoints.add(e);
 		}
 
 		for (Map.Entry<String, String> entry : endpointNat.entrySet()) {

@@ -5,6 +5,19 @@
        <name>fedx-asko</name>
        <description>fedx rdf4j in askomics context</description>
        <artifactId>fedx</artifactId>
+       <organization>
+		<name>AskOmics</name>
+		<url>https://github.com/askomics</url>
+	</organization>
+
+	<developers>
+		<developer>
+			<id>ofilangi</id>
+			<name>Olivier Filngi</name>
+			<email>olivier.filangi@inra.fr</email>
+			<timezone>GMT+12</timezone>
+        </developer>
+     </developers>
 
 <build>
 <plugins>
@@ -78,7 +91,26 @@
                         <artifactId>rdf4j-queryresultio-sparqljson</artifactId>
                         <version>2.2.4</version>
                 </dependency>
-
+				
+				<dependency>
+    					<groupId>org.eclipse.rdf4j</groupId>
+    					<artifactId>rdf4j-http-compliance</artifactId>
+    					<version>2.2.4</version>
+    					<type>pom</type>
+            			<scope>import</scope>
+				</dependency>
+				
+				<dependency>
+    					<groupId>org.eclipse.jetty</groupId>
+    					<artifactId>jetty-server</artifactId>
+    					<version>9.4.8.v20171121</version>
+				</dependency>
+	
+				<dependency>
+    				<groupId>org.eclipse.jetty</groupId>
+    				<artifactId>jetty-webapp</artifactId>
+    				<version>9.4.8.v20171121</version>
+				</dependency>
 
                 <dependency>
                   <groupId>org.apache.commons</groupId>

@@ -191,10 +191,10 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 			try {
 				monitorRemoteRequest();
 				//log.info("===================================================--------------------START =============="+conn.toString()+"  query="+queryString);
-				long startTime = System.currentTimeMillis();
+				//long startTime = System.currentTimeMillis();
 				boolean hasStatements = query.evaluate();
-				long endTime = System.currentTimeMillis();
-				System.out.println("That took " + (endTime - startTime) + " milliseconds");
+				//long endTime = System.currentTimeMillis();
+				//System.out.println("That took " + (endTime - startTime) + " milliseconds");
 				return hasStatements;
 			} catch (QueryEvaluationException ex) {
 				throw ExceptionUtil.traceExceptionSourceAndRepair(strategy.getFedXConnection().getEndpointManager(), conn, ex, "Subquery: " + queryString);			

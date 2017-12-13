@@ -43,6 +43,8 @@ public class Optimizer {
 	public static TupleExpr optimize(TupleExpr parsed, Dataset dataset, BindingSet bindings, 
 	        StrictEvaluationStrategy strategy, QueryInfo queryInfo)
 	{
+		logger.info(" ====================== OPTIMIZE ============================") ;
+		
 		FedX fed = queryInfo.getFederation();
 		List<Endpoint> members = queryInfo.getFedXConnection().getEndpoints();
 		
@@ -52,7 +54,7 @@ public class Optimizer {
 		
 		// Clone the tuple expression to allow for more aggressive optimizations
 		TupleExpr query = new QueryRoot(parsed.clone());
-		
+		logger.info(query.toString());
 		Cache cache = fed.getCache();
 
 		if (logger.isTraceEnabled())
@@ -80,7 +82,7 @@ public class Optimizer {
 		SourceSelection sourceSelection = (SourceSelection)Util.instantiate(fed.getConfig().getSourceSelectionClass(), members, cache, queryInfo);
 		//Class.forName(Config.getSourceSelectionClass()).newInstance();
 		//SourceSelection sourceSelection = new SourceSelection(members, cache, queryInfo);
-
+		
 		sourceSelection.performSourceSelection(info.getStatements());
 		
 		long srcSelTime = System.currentTimeMillis() - srcTime;

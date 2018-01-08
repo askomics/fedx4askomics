@@ -7,8 +7,19 @@ mvn clean dependency:copy-dependencies package
 # HTTP Server
 
 ```
-java -d64 -Xms512m -Xmx2g -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.HttpSimpleServer -e test -p 4040
+java -d64 -Xms512m -Xmx2g -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.HttpSimpleServer -e fedx -p 4040
 ```
+
+# Image Docker
+
+```
+docker build . -t fedx4askomics
+docker run -p 4040:4040 -t fedx4askomics
+```
+
+# URL Endpoint 
+
+http://localhost:4040/fedx
 
 # Send HTTP sparqlrequest
 

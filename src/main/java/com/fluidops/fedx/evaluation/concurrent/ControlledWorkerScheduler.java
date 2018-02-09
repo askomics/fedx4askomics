@@ -199,7 +199,7 @@ public class ControlledWorkerScheduler implements Scheduler {
 
 	public void abort(int queryId) {
 		log.debug("Aborting tasks for query with id " + queryId + ".");
-		throw new Error("not implemented");
+		throw new Error("ControlledWorkerScheduler::abort::not implemented");
 	}
 	
 	private static class WorkerThread extends Thread {

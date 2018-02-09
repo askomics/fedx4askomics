@@ -181,9 +181,6 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 			/* remote boolean query */
 			//log.info("graph="+graph);
 			String queryString = QueryStringUtil.askQueryString(stmt, graph, namedGraph, bindings);
-			//log.info("querystring1="+queryString);
-			
-			//log.info(conn.getClass().toString());
 			BooleanQuery query = conn.prepareBooleanQuery(QueryLanguage.SPARQL, queryString, null);
 			
 			disableInference(query);
@@ -214,7 +211,11 @@ public class SparqlTripleSource extends TripleSourceBase implements TripleSource
 				boolean hasStatements = qRes.hasNext();
 				return hasStatements;
 			} catch (QueryEvaluationException ex) {
-				throw ExceptionUtil.traceExceptionSourceAndRepair(strategy.getFedXConnection().getEndpointManager(), conn, ex, "Subquery: " + queryString);			
+				if (ex.getMessage().contains("Not a valid (absolute) IRI")) {
+					qRes = null;
+					return true;
+				}
+				throw ExceptionUtil.traceExceptionSourceAndRepair(strategy.getFedXConnection().getEndpointManager(), conn, ex, "Subquery: " + queryString);
 			} finally {
 				if (qRes!=null)
 					qRes.close();

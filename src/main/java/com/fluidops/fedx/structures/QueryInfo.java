@@ -115,7 +115,7 @@ public class QueryInfo {
 	}
 	
 	RepositoryConnection getSummaryConnection() {
-	    throw new RuntimeException("not implemented");
+	    throw new RuntimeException("QueryInfo::getSummaryConnection::not implemented");
 	}
 	
 	public static int getPriority() {

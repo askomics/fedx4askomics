@@ -7,7 +7,7 @@ mvn clean dependency:copy-dependencies package
 # HTTP Server
 
 ```
-java -d64 -Xms512m -Xmx2g -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.HttpSimpleServer -e fedx -p 4040
+java -d64 -Xms1g -Xmx3g -cp ./target/fedx-0.0.1-SNAPSHOT-jar-with-dependencies.jar fr.inra.igepp.askomics.HttpSimpleServer -e fedx -p 4040
 ```
 
 # Image Docker

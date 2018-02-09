@@ -31,7 +31,7 @@ public class FederationStatus implements FederationStatusMBean {
     
 	//@Override
 	public List<String> getFederationMembersDescription() {
-	    throw new RuntimeException("not implemented");
+	    throw new RuntimeException("FederationStatus::getFederationMembersDescription::not implemented");
 //		List<Endpoint> members = FederationManager.getInstance().getFederation().getMembers();
 //		List<String> res = new ArrayList<String>();		
 //		for (Endpoint e : members) 

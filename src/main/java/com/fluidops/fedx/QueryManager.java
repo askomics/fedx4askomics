@@ -94,7 +94,7 @@ public class QueryManager {
 			if (!runningQueries.contains(queryInfo))
 				return;		
 			log.info("Aborting query " + queryInfo.getQueryID());
-			throw new Error("not implemented");
+			throw new Error("QueryManager::abortQuery: not implemented");
 //			federationManager.getScheduler().abort(queryInfo.getQueryID());
 //			federationManager.getUnionScheduler().abort(queryInfo.getQueryID());
 //			runningQueries.remove(queryInfo);

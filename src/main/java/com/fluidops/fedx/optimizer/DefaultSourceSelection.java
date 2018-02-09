@@ -23,6 +23,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
+import org.eclipse.rdf4j.common.iteration.EmptyIteration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.common.iteration.CloseableIteration;
@@ -185,6 +186,9 @@ public class DefaultSourceSelection extends SourceSelection {
 					new ArrayList<Future<CloseableIteration<BindingSet, QueryEvaluationException>>>(tasks.size());
 			
 			for (CheckTaskPair task : tasks) {
+				//to debug...
+				//new ParallelCheckTask(task.e, task.t, this).call();
+
 				futures.add(scheduler.schedule(new ParallelCheckTask(task.e, task.t, this), QueryInfo.getPriority() + 1));
 			}
 			
@@ -291,7 +295,7 @@ public class DefaultSourceSelection extends SourceSelection {
 				if (hasResults)
 					sourceSelection.addSource(stmt, new StatementSource(endpoint.getId(), StatementSourceType.REMOTE, endpoint.getGraph(),endpoint.getNamedGraph()));
 				
-				return null;
+				return new EmptyIteration<BindingSet, QueryEvaluationException> ();
 			} catch (Exception e) {
 				this.control.toss(e);
 				throw new OptimizationException("Error checking results for endpoint " + endpoint.getId() + ": " + e.getMessage(), e);

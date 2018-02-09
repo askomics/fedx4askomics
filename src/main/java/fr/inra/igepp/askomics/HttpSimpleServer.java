@@ -9,10 +9,7 @@ import java.io.ByteArrayOutputStream;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 
-import org.eclipse.rdf4j.query.QueryEvaluationException;
-import org.eclipse.rdf4j.query.TupleQuery ;
-import org.eclipse.rdf4j.query.TupleQueryResult ;
-import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.*;
 
 import org.eclipse.rdf4j.query.resultio.TupleQueryResultWriter;
 import org.eclipse.rdf4j.query.resultio.sparqljson.SPARQLResultsJSONWriter;
@@ -147,17 +144,20 @@ public class HttpSimpleServer implements HttpHandler {
 		try {
 			
 			String sres = runQuery(query);
+			System.out.println(sres);
 
 			Headers headers = t.getResponseHeaders();
 			headers.set("Content-Type", String.format("application/json; charset=%s", StandardCharsets.UTF_8));
-
-			t.sendResponseHeaders(200, sres.length());
-			t.getResponseBody().write(sres.getBytes());
+            byte[] bs = sres.getBytes("UTF-8");
+			t.sendResponseHeaders(200, bs.length);
+			t.getResponseBody().write(bs);
 			t.getResponseBody().close();
 		}
 		catch (Exception e) {
 			System.err.println(" ** Manage exception **");
-			System.err.println(e.getMessage());
+			e.printStackTrace();
+
+			System.err.println("\n\n"+e.getMessage());
 			/*
       Errors with HTTP Status Code 400 (Bad Request)
 
@@ -253,6 +253,8 @@ public class HttpSimpleServer implements HttpHandler {
 			System.out.println("evaluate");
 			log.info(query.toString());
 			TupleQueryResult res = query.evaluate();
+
+			System.out.println(res.toString());
 			System.out.println("evaluate ok");
 
 			if ( outputFormat == OutputFormat.JSON || outputFormat == OutputFormat.XML ) {
@@ -273,7 +275,8 @@ public class HttpSimpleServer implements HttpHandler {
 				int iCount = 0;
 				while (res.hasNext()) {
 					iCount++;
-					w.handleSolution(res.next());
+					BindingSet r = res.next();
+					w.handleSolution(r);
 				}
 
 				w.endQueryResult();

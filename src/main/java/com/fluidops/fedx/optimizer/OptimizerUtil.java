@@ -22,11 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.eclipse.rdf4j.query.algebra.ArbitraryLengthPath;
-import org.eclipse.rdf4j.query.algebra.Join;
-import org.eclipse.rdf4j.query.algebra.Service;
-import org.eclipse.rdf4j.query.algebra.StatementPattern;
-import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.*;
 
 import com.fluidops.fedx.algebra.FedXService;
 import com.fluidops.fedx.algebra.NJoin;
@@ -101,6 +97,14 @@ public class OptimizerUtil
 				freeVars.add(st.getObjectVar().getName());
 			//OFI ...ajout du return, sion l execpetion est lancé.
 			//----------------------------------------------------
+			return freeVars;
+		}
+
+		if (tupleExpr instanceof LeftJoin) {
+
+			HashSet<String> freeVars = new HashSet<String>();
+			freeVars.addAll(getFreeVars(((LeftJoin) tupleExpr).getRightArg()));
+			freeVars.addAll(getFreeVars(((LeftJoin) tupleExpr).getLeftArg()));
 			return freeVars;
 		}
 		/*

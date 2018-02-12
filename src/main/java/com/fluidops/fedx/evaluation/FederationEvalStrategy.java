@@ -20,6 +20,7 @@ package com.fluidops.fedx.evaluation;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.eclipse.rdf4j.query.algebra.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.common.iteration.CloseableIteration;
@@ -36,10 +37,6 @@ import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
-import org.eclipse.rdf4j.query.algebra.ArbitraryLengthPath;
-import org.eclipse.rdf4j.query.algebra.Projection;
-import org.eclipse.rdf4j.query.algebra.TupleExpr;
-import org.eclipse.rdf4j.query.algebra.ValueExpr;
 import org.eclipse.rdf4j.query.algebra.evaluation.QueryBindingSet;
 import org.eclipse.rdf4j.query.algebra.evaluation.ValueExprEvaluationException;
 import org.eclipse.rdf4j.query.algebra.evaluation.federation.FederatedServiceResolver;
@@ -170,7 +167,12 @@ public abstract class FederationEvalStrategy extends StrictEvaluationStrategy {
 		public void meet(NJoin nj) {
 			result = evaluateNJoin(nj, bindings);
 		}
-		
+
+		//@Override
+/*		public void meet(LeftJoin nj) {
+			result = evaluateLeftJoin(nj, bindings);
+		}
+*/
 		//@Override
 		public void meet(NUnion nu) {
 			result = evaluateNaryUnion(nu, bindings);
@@ -340,7 +342,17 @@ public abstract class FederationEvalStrategy extends StrictEvaluationStrategy {
 		}
 		return result;
 	}
-	
+
+	/*
+	public CloseableIteration<BindingSet, QueryEvaluationException> evaluateLeftJoin(LeftJoin joinLeft, BindingSet bindings) {
+		System.out.println("LEFTJOINT*****************************************");
+        CloseableIteration<BindingSet, QueryEvaluationException> result = evaluate(joinLeft.getLeftArg(), bindings);
+        ControlledWorkerScheduler scheduler = conn.getFederation().getScheduler();
+
+        return result;
+	}
+*/
+
 	public CloseableIteration<BindingSet, QueryEvaluationException> evaluateNaryUnion(NUnion union, BindingSet bindings) {
 		
 		ControlledWorkerScheduler unionScheduler = conn.getFederation().getScheduler();

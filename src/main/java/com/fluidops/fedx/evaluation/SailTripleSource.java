@@ -77,9 +77,7 @@ public class SailTripleSource extends TripleSourceBase implements TripleSource {
 			String preparedQuery, RepositoryConnection conn, List<String> graph, List<String> namedGraph, final BindingSet bindings, final FilterValueExpr filterExpr)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException {
-		log.info(" ======================  getStatements ===========================");
-		log.info("grazph="+graph.toString());
-		log.info("prepareQuery="+preparedQuery);
+
 		TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, preparedQuery, null);
 		disableInference(query);		
 		

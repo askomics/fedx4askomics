@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.rdf4j.query.algebra.LeftJoin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.query.algebra.TupleExpr;
@@ -128,9 +129,10 @@ public class JoinOrderOptimizer {
 		if (tupleExpr instanceof NUnion)
 			return estimateCost((NUnion)tupleExpr, joinVars);
 		if (tupleExpr instanceof FedXService) 
-			return estimateCost( (FedXService)tupleExpr, joinVars);
-		
-		
+			return estimateCost((FedXService)tupleExpr, joinVars);
+		//if (tupleExpr instanceof LeftJoin)
+		//	return estimateCost((LeftJoin)tupleExpr, joinVars);
+
 		log.warn("No cost estimation for " + tupleExpr.getClass().getSimpleName() + " available.");
 		//return 100d;
 		return 1000d;
@@ -273,4 +275,15 @@ public class JoinOrderOptimizer {
 		
 		return cost + join.getNumberOfArguments() - 1;
 	}
+/*
+	protected static double estimateCost(LeftJoin join, Set<String> joinVars) {
+
+		// cost of a join is determined by the cost of the first join arg
+		// Note: the join order of this join is already determined (depth first)
+		// in addition we add a penalty for the number of join arguments
+		double cost = estimateCost(join.getLeftArg(), joinVars);
+
+		return cost - 1;
+	}
+	*/
 }

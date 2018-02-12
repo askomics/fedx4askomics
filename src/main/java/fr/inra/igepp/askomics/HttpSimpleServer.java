@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 
 import com.sun.net.httpserver.*;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.*;
 
 @SuppressWarnings("restriction")
@@ -144,7 +145,7 @@ public class HttpSimpleServer implements HttpHandler {
 		try {
 			
 			String sres = runQuery(query);
-			System.out.println(sres);
+			//System.out.println(sres);
 
 			Headers headers = t.getResponseHeaders();
 			headers.set("Content-Type", String.format("application/json; charset=%s", StandardCharsets.UTF_8));
@@ -271,16 +272,18 @@ public class HttpSimpleServer implements HttpHandler {
 				}
 				System.out.println("build results");
 				w.startQueryResult(res.getBindingNames());
-
+				long startTime = System.currentTimeMillis();
 				int iCount = 0;
 				while (res.hasNext()) {
 					iCount++;
 					BindingSet r = res.next();
 					w.handleSolution(r);
 				}
+				Long estimatedTime = System.currentTimeMillis() - startTime;
+
 
 				w.endQueryResult();
-				System.out.println("build results ok nb res:"+iCount);
+				System.out.println("build results ok nb res:"+iCount+" time==> "+estimatedTime.toString());
 				sres = new String( bao.toByteArray(), java.nio.charset.StandardCharsets.UTF_8 );
 
 			} else if ( outputFormat == OutputFormat.STDOUT ) {
